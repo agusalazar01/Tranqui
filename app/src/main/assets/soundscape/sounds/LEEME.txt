@@ -1,0 +1,21 @@
+Grabaciones reales para los paisajes sonoros de Tranqui
+========================================================
+
+Poné acá archivos de audio con estos nombres (pueden ser .ogg, .mp3 o .wav):
+
+  agua.ogg     -> arroyo o río (reemplaza el agua generada)
+  bosque.ogg   -> viento en las hojas (reemplaza el bosque generado)
+  fuego.ogg    -> fogata con chasquidos (reemplaza el fuego generado)
+  cuenco.ogg   -> un solo golpe de cuenco tibetano, largo (la app lo afina para cada nota)
+
+Si un archivo no está, la app usa el sonido generado. No hace falta tocar código.
+
+Criterios: más de 60 segundos (salvo el cuenco), sin voces, autos ni pájaros
+estridentes, y que se pueda repetir en bucle sin que se note el corte.
+
+Fuentes con licencia libre (revisá la licencia de cada archivo):
+  - BigSoundBank (dominio público, CC0): https://bigsoundbank.com
+  - Freesound, filtrando por "Creative Commons 0": https://freesound.org
+    Cuenco candidato: https://freesound.org/people/Garuda1982/sounds/116315/
+
+Anotá en el README de qué enlace salió cada archivo y su licencia.

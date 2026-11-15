@@ -1,0 +1,16 @@
+.gradle/
+build/
+app/build/
+local.properties
+.idea/
+*.iml
+.DS_Store
+captures/
+.kotlin/
+
+# Secretos de firma: nunca al repositorio
+keystore.properties
+*.jks
+*.keystore
+keystore/
+secretos/

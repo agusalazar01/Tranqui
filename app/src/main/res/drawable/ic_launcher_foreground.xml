@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Sol suave, parcialmente oculto detrás de las ondas -->
+    <path
+        android:fillColor="#D5A080"
+        android:pathData="M38,42 A16,16 0,0 1,70,42 L70,55 L38,55 Z" />
+    <!-- Bruma translúcida -->
+    <path
+        android:fillColor="#A7B39B"
+        android:fillAlpha="0.62"
+        android:pathData="M20,49 C31,39 43,43 53,48 C66,54 78,42 89,48 C93,58 85,67 73,68 L34,68 C23,66 17,58 20,49 Z" />
+    <!-- Primera onda -->
+    <path
+        android:fillColor="#6F8774"
+        android:pathData="M12,63 C27,54 39,58 52,64 C66,71 80,57 96,62 L96,77 C80,82 68,82 54,77 C38,71 25,72 12,80 Z" />
+    <!-- Onda principal -->
+    <path
+        android:fillColor="#344C40"
+        android:pathData="M10,76 C26,68 39,72 53,78 C69,85 83,73 98,76 L98,94 L10,94 Z" />
+</vector>

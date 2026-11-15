@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tranqui</string>
+    <string name="a11y_label">Tranqui: pausa antes de abrir apps</string>
+    <string name="a11y_description">Tranqui usa este permiso solo para saber qué app se abre y mostrar una pausa antes de las apps que elegiste. No lee ni guarda lo que hay en tu pantalla.</string>
+</resources>

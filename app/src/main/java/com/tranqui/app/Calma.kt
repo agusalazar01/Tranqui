@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -36,7 +37,7 @@ fun CalmaScreen(nav: Nav) {
     ) {
         ScreenTitle("Calma", "Sonidos y prácticas para bajar un cambio")
         SectionLabel("Paisajes sonoros")
-        SoundscapeView(Modifier.fillMaxWidth().height(540.dp).clip(RoundedCornerShape(28.dp)))
+        SoundscapeView(Modifier.fillMaxWidth().height(600.dp).clip(RoundedCornerShape(28.dp)))
         SectionLabel("Prácticas guiadas")
         PRACTICES.forEach { p ->
             TCard(onClick = { nav.push(Route.PracticeRun(p.id)) }) {
@@ -88,9 +89,9 @@ fun SoundscapeView(modifier: Modifier) {
 }
 
 @Composable
-fun PracticeScreen(id: String, nav: Nav) {
+fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
     val p = PRACTICES.firstOrNull { it.id == id } ?: PRACTICES.first()
-    var minutes by remember { mutableIntStateOf(p.defaultMinutes) }
+    var minutes by remember { mutableIntStateOf(presetMinutes?.takeIf { it in p.options } ?: p.defaultMinutes) }
     var running by remember { mutableStateOf(false) }
     var done by remember { mutableStateOf(false) }
     var vibrate by remember { mutableStateOf(true) }
@@ -145,6 +146,12 @@ fun PracticeScreen(id: String, nav: Nav) {
 @Composable
 private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, onDone: () -> Unit) {
     val ctx = LocalContext.current
+    val view = LocalView.current
+    // La pantalla no se apaga durante la práctica: si se apagara, la guía se frenaría.
+    DisposableEffect(Unit) {
+        view.keepScreenOn = true
+        onDispose { view.keepScreenOn = false }
+    }
     val scale = remember { Animatable(0.75f) }
     var label by remember { mutableStateOf("Preparate…") }
     var remaining by remember { mutableIntStateOf(minutes * 60) }

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.provider.Settings
 import android.view.accessibility.AccessibilityEvent
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -47,14 +48,32 @@ import kotlin.random.Random
 class PauseAccessibilityService : AccessibilityService() {
     private var lastPkg = ""
     private var lastAt = 0L
+    /** La última app que estuvo al frente (sin contar teclado ni barra del sistema). */
+    private var foreground = ""
+    private var ignored = emptySet<String>()
+
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        Store.init(this)
+        val ime = runCatching {
+            getSystemService(InputMethodManager::class.java).enabledInputMethodList.map { it.packageName }
+        }.getOrDefault(emptyList())
+        ignored = (ime + listOf("com.android.systemui", "android")).toSet()
+    }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         val e = event ?: return
         if (e.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
         val pkg = e.packageName?.toString() ?: return
+        // El teclado, la barra de notificaciones y los diálogos del sistema no cuentan como cambiar de app.
+        if (pkg in ignored) return
+        val previous = foreground
+        foreground = pkg
         if (pkg == packageName) return
         Store.init(this)
         if (pkg !in Store.blocked) return
+        // Solo al entrar a la app desde otra: no interrumpe mientras ya la estás usando.
+        if (pkg == previous) return
         if (PauseActivity.showing) return
         if (Store.isAllowed(pkg)) return
         val now = SystemClock.elapsedRealtime()
@@ -124,6 +143,8 @@ class PauseActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         showing = false
+        // Si salís con el botón de inicio, la pausa no queda guardada para otra app.
+        if (!isChangingConfigurations && !isFinishing) finish()
     }
 }
 

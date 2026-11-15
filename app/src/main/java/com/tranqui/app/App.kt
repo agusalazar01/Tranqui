@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -59,7 +60,7 @@ sealed interface Route {
     data class MethodDetail(val id: String) : Route
     data class Notes(val kind: String) : Route
     data object Kanban : Route
-    data class PracticeRun(val id: String) : Route
+    data class PracticeRun(val id: String, val minutes: Int? = null) : Route
     data object Settings : Route
 }
 
@@ -81,7 +82,11 @@ fun App(incoming: MutableState<Intent?>) {
     var sapoDialog by remember { mutableStateOf(false) }
 
     fun startMode(label: String, goalId: String?, minutes: Int) {
-        if (Store.active() == null) startActivityMode(ctx, label, goalId, minutes)
+        val current = Store.active()
+        if (current == null) startActivityMode(ctx, label, goalId, minutes)
+        else if (current.label != label) {
+            Toast.makeText(ctx, "Ya tenés en curso: ${current.label}. Terminala para empezar otra.", Toast.LENGTH_LONG).show()
+        }
         if (stack.lastOrNull() != Route.Activity) stack.add(Route.Activity)
     }
 
@@ -127,14 +132,15 @@ fun App(incoming: MutableState<Intent?>) {
             is Route.MethodDetail -> MethodScreen(top.id, nav)
             is Route.Notes -> NotesScreen(top.kind, nav)
             Route.Kanban -> KanbanScreen(nav)
-            is Route.PracticeRun -> PracticeScreen(top.id, nav)
+            is Route.PracticeRun -> PracticeScreen(top.id, nav, top.minutes)
             Route.Settings -> SettingsScreen(nav)
         }
 
         quick?.let { size ->
             QuickPicker(size, onDismiss = { quick = null }) { opt ->
                 quick = null
-                startMode(opt.label, opt.goalId, opt.minutes)
+                if (opt.practice != null) stack.add(Route.PracticeRun(opt.practice, opt.minutes))
+                else startMode(opt.label, opt.goalId, opt.minutes)
             }
         }
         if (sapoDialog) SapoDialog { sapoDialog = false }

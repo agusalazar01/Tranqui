@@ -1,5 +1,9 @@
 package com.tranqui.app
 
+import kotlinx.coroutines.delay
+
+import androidx.compose.ui.platform.LocalContext
+
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -204,9 +208,20 @@ fun Blob(color: Color, size: Int, variant: Int = 0) {
 /** Bruma: manchas difusas que se mueven lento, sin centro quemado. */
 @Composable
 fun Mist(modifier: Modifier, colors: List<Color>, count: Int = 4, alpha: Float = 0.4f, periodMs: Int = 60000) {
-    val t by rememberInfiniteTransition(label = "mist").animateFloat(
-        0f, (2 * PI).toFloat(), infiniteRepeatable(tween(periodMs, easing = LinearEasing)), label = "t"
-    )
+    // Movimiento lento a ~15 cuadros por segundo: se ve igual de suave y gasta mucha menos batería.
+    // Con «Quitar animaciones» activado en Android, la bruma queda quieta.
+    val ctx = LocalContext.current
+    val still = remember {
+        android.provider.Settings.Global.getFloat(ctx.contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
+    }
+    val seed = remember { (Math.random() * periodMs).toLong() }
+    val t by produceState(initialValue = (seed % periodMs) / periodMs.toFloat() * (2 * PI).toFloat(), still, periodMs) {
+        if (still) return@produceState
+        while (true) {
+            withFrameMillis { ms -> value = ((ms + seed) % periodMs) / periodMs.toFloat() * (2 * PI).toFloat() }
+            delay(66)
+        }
+    }
     Canvas(modifier) {
         val m = minOf(size.width, size.height)
         for (i in 0 until count) {

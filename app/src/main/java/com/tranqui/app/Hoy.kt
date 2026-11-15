@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -47,6 +49,26 @@ fun HoyScreen(nav: Nav) {
             }
 
             HomeWelcome()
+
+            val ctx = LocalContext.current
+            var pauseOn by remember { mutableStateOf(pauseServiceEnabled(ctx)) }
+            LifecycleResumeEffect(Unit) {
+                pauseOn = pauseServiceEnabled(ctx)
+                onPauseOrDispose { }
+            }
+            if (!pauseOn) {
+                TCard(onClick = { nav.push(Route.Settings) }, bg = C.ArcillaClara, bordered = false) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        OrganicMark(42, warm = true)
+                        Spacer(Modifier.width(12.dp))
+                        Column(Modifier.weight(1f)) {
+                            Body("Activá la pausa antes de abrir apps", color = C.ArcillaOscura, bold = true)
+                            Small("Son 2 o 3 pasos, con accesos directos.", color = C.ArcillaOscura)
+                        }
+                        Chevron(C.ArcillaOscura)
+                    }
+                }
+            }
 
             if (active != null) {
                 TCard(

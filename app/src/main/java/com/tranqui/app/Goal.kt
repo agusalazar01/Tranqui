@@ -28,6 +28,7 @@ fun GoalEditScreen(id: String?, nav: Nav) {
     var rh by remember { mutableIntStateOf(existing?.reminderHour ?: -1) }
     var rm by remember { mutableIntStateOf(existing?.reminderMinute ?: 0) }
     var pleasure by remember { mutableStateOf(existing?.pleasure ?: "") }
+    var nameError by remember { mutableStateOf(false) }
     val template = TEMPLATES.find { it.id == templateId } ?: TEMPLATES.last()
 
     Column(
@@ -53,8 +54,9 @@ fun GoalEditScreen(id: String?, nav: Nav) {
         }
 
         OutlinedTextField(
-            value = name, onValueChange = { name = it }, label = { Text("Nombre") },
-            singleLine = true, modifier = Modifier.fillMaxWidth()
+            value = name, onValueChange = { name = it; nameError = false }, label = { Text("Nombre") },
+            singleLine = true, modifier = Modifier.fillMaxWidth(), isError = nameError,
+            supportingText = if (nameError) { { Text("Poné un nombre para tu objetivo") } } else null
         )
 
         if (existing == null) {
@@ -105,7 +107,10 @@ fun GoalEditScreen(id: String?, nav: Nav) {
         )
 
         PrimaryButton("Guardar") {
-            if (name.isBlank()) return@PrimaryButton
+            if (name.isBlank()) {
+                nameError = true
+                return@PrimaryButton
+            }
             val g = Goal(
                 existing?.id ?: Goal.newId(), name.trim(), templateId, minutes, anchor.trim(), rh, rm,
                 existing?.startDay ?: Store.today(), pleasure.trim()

@@ -18,12 +18,15 @@ val TEMPLATES = listOf(
 
 val LEVELS = listOf("Casi nunca", "A veces", "Seguido")
 
-data class QuickOption(val label: String, val minutes: Int, val goalId: String? = null, val note: String = "")
+data class QuickOption(
+    val label: String, val minutes: Int, val goalId: String? = null, val note: String = "",
+    val practice: String? = null // si no es null, abre la práctica guiada en vez del cronómetro
+)
 
 /** Opciones de los tres botones: siempre hay algo que se puede hacer en cualquier lugar. */
 fun quickOptions(size: Int, goals: List<Goal>): List<QuickOption> = when (size) {
     1 -> listOf(
-        QuickOption("Respiración lenta", 1, note = "En cualquier lugar, sin que se note"),
+        QuickOption("Respiración lenta", 1, note = "Guiada · en cualquier lugar, sin que se note", practice = "suspiro"),
         QuickOption("Estirar cuello y hombros", 1, note = "Sentado o parado"),
         QuickOption("Tomar agua y mirar lejos", 1),
         QuickOption("Planear el día: 3 tareas", 2),

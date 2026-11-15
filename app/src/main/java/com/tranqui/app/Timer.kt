@@ -54,6 +54,14 @@ fun finishActivityMode(ctx: Context): Int {
     return mins
 }
 
+/** Descarta la actividad sin guardar nada (por ejemplo, si se empezó sin querer). */
+fun cancelActivityMode(ctx: Context) {
+    Store.setActive(null)
+    cancelMinAlarm(ctx)
+    NotificationManagerCompat.from(ctx).cancel(Notif.PROMPT_ID)
+    ctx.stopService(Intent(ctx, TimerService::class.java))
+}
+
 private fun minAlarmIntent(ctx: Context): PendingIntent = PendingIntent.getBroadcast(
     ctx, 7, Intent(ctx, MinReachedReceiver::class.java),
     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
@@ -91,6 +99,7 @@ class TimerService : Service() {
         const val UPDATE = "update"
         const val PAUSE = "pause"
         const val RESUME = "resume"
+        const val FINISH = "finish"
         const val ID = 11
     }
 
@@ -111,6 +120,17 @@ class TimerService : Service() {
         when (intent?.action) {
             PAUSE -> { Store.pause(); cancelMinAlarm(this); NotificationManagerCompat.from(this).cancel(Notif.PROMPT_ID) }
             RESUME -> { Store.resume(); scheduleMinAlarm(this) }
+            FINISH -> {
+                val a0 = Store.active()
+                if (a0 != null) {
+                    val mins = finishActivityMode(this)
+                    Notif.simple(
+                        this, Notif.MIN_ID, Notif.CH_AVISO, "Bien hecho: $mins min",
+                        "${a0.label}. Suma a tu semana.", Notif.openApp(this, 29) { }
+                    )
+                }
+                return START_NOT_STICKY
+            }
         }
         val a = Store.active()
         if (a == null) {
@@ -186,7 +206,7 @@ object Notif {
                 .setContentText("En pausa · ${el / 60000} min")
                 .addAction(0, "Seguir", serviceAction(ctx, TimerService.RESUME, 23))
         }
-        b.addAction(0, "Terminar", openApp(ctx, 24) { putExtra("open_activity", true) })
+        b.addAction(0, "Terminar", serviceAction(ctx, TimerService.FINISH, 24))
         return b.build()
     }
 
@@ -204,7 +224,7 @@ object Notif {
             .setTimeoutAfter(60_000)
             .setContentIntent(openApp(ctx, 25) { putExtra("open_activity", true) })
             .addAction(0, "Pausar", serviceAction(ctx, TimerService.PAUSE, 26))
-            .addAction(0, "Terminar", openApp(ctx, 27) { putExtra("open_activity", true) })
+            .addAction(0, "Terminar", serviceAction(ctx, TimerService.FINISH, 27))
             .build()
         try { NotificationManagerCompat.from(ctx).notify(PROMPT_ID, n) } catch (_: SecurityException) { }
     }
@@ -255,7 +275,8 @@ object Reminders {
             set(Calendar.SECOND, 0)
             if (timeInMillis <= System.currentTimeMillis()) add(Calendar.DAY_OF_YEAR, 1)
         }
-        am.setInexactRepeating(AlarmManager.RTC_WAKEUP, c.timeInMillis, AlarmManager.INTERVAL_DAY, p)
+        // Ventana de 10 minutos: llega a la hora elegida sin pedir permiso de alarmas exactas.
+        am.setWindow(AlarmManager.RTC_WAKEUP, c.timeInMillis, 10 * 60_000L, p)
     }
 
     fun cancel(ctx: Context, id: String) {
@@ -269,6 +290,7 @@ class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(ctx: Context, intent: Intent) {
         Store.init(ctx)
         val g = Store.goal(intent.getStringExtra("goal")) ?: return
+        Reminders.schedule(ctx, g) // el de mañana
         if (Stats.doneToday(g.id)) return
         val text = if (g.anchor.isNotBlank()) "Después de ${g.anchor}. Tocá para empezar." else "Tocá para empezar."
         Notif.simple(

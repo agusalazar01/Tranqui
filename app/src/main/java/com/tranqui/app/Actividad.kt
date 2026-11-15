@@ -26,6 +26,7 @@ fun ActivityScreen(nav: Nav) {
     Store.tick.intValue
     val a = Store.active()
     var finished by remember { mutableStateOf<Pair<String, Int>?>(null) }
+    var askDiscard by remember { mutableStateOf(false) }
 
     finished?.let { (label, mins) ->
         Celebration(label, mins) { nav.pop() }
@@ -99,13 +100,40 @@ fun ActivityScreen(nav: Nav) {
                     if (a.paused) resumeActivityMode(ctx) else pauseActivityMode(ctx)
                 }
                 PrimaryButton("Terminar", Modifier.weight(1f), bg = C.Arcilla, fg = C.ArcillaOscura) {
-                    val label = a.label
-                    val mins = finishActivityMode(ctx)
-                    finished = label to mins
+                    if (el < 60_000L) {
+                        askDiscard = true
+                    } else {
+                        val label = a.label
+                        val mins = finishActivityMode(ctx)
+                        finished = label to mins
+                    }
                 }
             }
             Spacer(Modifier.height(8.dp))
         }
+    }
+
+    if (askDiscard) {
+        AlertDialog(
+            onDismissRequest = { askDiscard = false },
+            containerColor = C.Lino,
+            title = { SerifText("Llevás menos de un minuto", 22) },
+            text = { Body("¿La empezaste sin querer? Si la descartás, no cuenta para hoy.", color = C.Texto2) },
+            confirmButton = {
+                TextButton(onClick = {
+                    askDiscard = false
+                    val label = a.label
+                    val mins = finishActivityMode(ctx)
+                    finished = label to mins
+                }) { Text("Guardar 1 minuto", color = C.Bosque) }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    askDiscard = false
+                    cancelActivityMode(ctx)
+                }) { Text("Descartar", color = C.ArcillaOscura) }
+            }
+        )
     }
 }
 

@@ -10,6 +10,8 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -45,6 +47,10 @@ class MainActivity : ComponentActivity() {
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
         }
         incoming.value = intent
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT)
+        )
         setContent { TranquiTheme { App(incoming) } }
     }
 
@@ -116,7 +122,7 @@ fun App(incoming: MutableState<Intent?>) {
 
     Box(Modifier.fillMaxSize().background(C.Lino)) {
         when (val top = stack.lastOrNull()) {
-            null -> Column(Modifier.fillMaxSize()) {
+            null -> Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))) {
                 Box(Modifier.weight(1f)) {
                     when (tab) {
                         0 -> HoyScreen(nav)
@@ -127,13 +133,7 @@ fun App(incoming: MutableState<Intent?>) {
                 }
                 BottomBar(tab) { tab = it }
             }
-            Route.Activity -> ActivityScreen(nav)
-            is Route.GoalEdit -> GoalEditScreen(top.id, nav)
-            is Route.MethodDetail -> MethodScreen(top.id, nav)
-            is Route.Notes -> NotesScreen(top.kind, nav)
-            Route.Kanban -> KanbanScreen(nav)
-            is Route.PracticeRun -> PracticeScreen(top.id, nav, top.minutes)
-            Route.Settings -> SettingsScreen(nav)
+            else -> Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) { Detail(top, nav) }
         }
 
         quick?.let { size ->
@@ -143,7 +143,26 @@ fun App(incoming: MutableState<Intent?>) {
                 else startMode(opt.label, opt.goalId, opt.minutes)
             }
         }
-        if (sapoDialog) SapoDialog { sapoDialog = false }
+        if (sapoDialog) SapoDialog(
+            onClose = { sapoDialog = false },
+            onStart = { step ->
+                sapoDialog = false
+                startMode(step, null, 2)
+            }
+        )
+    }
+}
+
+@Composable
+private fun Detail(top: Route, nav: Nav) {
+    when (top) {
+        Route.Activity -> ActivityScreen(nav)
+        is Route.GoalEdit -> GoalEditScreen(top.id, nav)
+        is Route.MethodDetail -> MethodScreen(top.id, nav)
+        is Route.Notes -> NotesScreen(top.kind, nav)
+        Route.Kanban -> KanbanScreen(nav)
+        is Route.PracticeRun -> PracticeScreen(top.id, nav, top.minutes)
+        Route.Settings -> SettingsScreen(nav)
     }
 }
 
@@ -208,22 +227,37 @@ fun QuickPicker(size: Int, onDismiss: () -> Unit, onPick: (QuickOption) -> Unit)
 }
 
 @Composable
-fun SapoDialog(onClose: () -> Unit) {
+fun SapoDialog(onClose: () -> Unit, onStart: (String) -> Unit) {
     var text by remember { mutableStateOf(Store.sapo() ?: "") }
+    var step by remember { mutableStateOf(Store.sapoStep() ?: "") }
     Dialog(onDismissRequest = onClose) {
         Column(
             Modifier.clip(RoundedCornerShape(28.dp)).background(C.Lino).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            SerifText("El sapo del día", 24)
-            Small("La tarea que más estás evitando. Hacela primero, aunque sea 2 minutos.")
+            SerifText("Destrabá tu tarea", 24)
+            Small("No hace falta resolverla entera. Vamos a encontrar una primera acción tan pequeña que puedas empezar ahora.")
             OutlinedTextField(
-                value = text, onValueChange = { text = it }, label = { Text("¿Cuál es?") },
-                modifier = Modifier.fillMaxWidth(), singleLine = true
+                value = text, onValueChange = { text = it }, label = { Text("¿Qué estás postergando?") },
+                modifier = Modifier.fillMaxWidth(), minLines = 2
             )
-            PrimaryButton("Guardar") {
+            OutlinedTextField(
+                value = step, onValueChange = { step = it }, label = { Text("¿Cuál sería el primer paso de 2 minutos?") },
+                modifier = Modifier.fillMaxWidth(), minLines = 2
+            )
+            Small("Ejemplo: en vez de «ordenar toda la casa», empezar por guardar cinco objetos.")
+            PrimaryButton("Guardar mi pequeño paso") {
                 if (text.isNotBlank()) Store.setSapo(text.trim())
+                if (step.isNotBlank()) Store.setSapoStep(step.trim())
                 onClose()
+            }
+            if (step.isNotBlank()) SoftButton("Empezar este paso · 2 min", Modifier.fillMaxWidth()) {
+                if (text.isNotBlank()) Store.setSapo(text.trim())
+                Store.setSapoStep(step.trim())
+                onStart(step.trim())
+            }
+            TextButton(onClick = onClose, modifier = Modifier.align(Alignment.End)) {
+                Text("Ahora no", color = C.Texto2)
             }
         }
     }

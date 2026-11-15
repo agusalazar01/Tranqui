@@ -1,21 +1,11 @@
-Grabaciones reales para los paisajes sonoros de Tranqui
-========================================================
+Grabaciones de Tranqui (todas CC0, ver ../CREDITS.md)
 
-Poné acá archivos de audio con estos nombres (pueden ser .ogg, .mp3 o .wav):
+Cada archivo .ogg es un sonido del catálogo; el nombre del archivo es su identificador
+(por ejemplo arroyo.ogg). Para agregar uno nuevo:
 
-  agua.ogg     -> arroyo o río (reemplaza el agua generada)
-  bosque.ogg   -> viento en las hojas (reemplaza el bosque generado)
-  fuego.ogg    -> fogata con chasquidos (reemplaza el fuego generado)
-  cuenco.ogg   -> un solo golpe de cuenco tibetano, largo (la app lo afina para cada nota)
+1. Prepará el audio con:  tools/preparar_sonido.sh entrada.mp3 app/src/main/assets/soundscape/sounds/nombre.ogg
+   (agregá "120 golpe" al final si es un golpe de cuenco, para que no se empalme).
+2. Sumalo al CATALOG de ../index.html con su título, descripción, tipo y fuente.
+3. Anotá el origen y la licencia en ../CREDITS.md.
 
-Si un archivo no está, la app usa el sonido generado. No hace falta tocar código.
-
-Criterios: más de 60 segundos (salvo el cuenco), sin voces, autos ni pájaros
-estridentes, y que se pueda repetir en bucle sin que se note el corte.
-
-Fuentes con licencia libre (revisá la licencia de cada archivo):
-  - BigSoundBank (dominio público, CC0): https://bigsoundbank.com
-  - Freesound, filtrando por "Creative Commons 0": https://freesound.org
-    Cuenco candidato: https://freesound.org/people/Garuda1982/sounds/116315/
-
-Anotá en el README de qué enlace salió cada archivo y su licencia.
+Si un archivo no está, ese sonido simplemente no aparece en la app.

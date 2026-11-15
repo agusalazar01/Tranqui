@@ -160,7 +160,7 @@ val METHODS = listOf(
     )
 )
 
-data class Phase(val label: String, val seconds: Float, val scale: Float)
+data class Phase(val label: String, val seconds: Float, val scale: Float, val say: String = label)
 
 data class Practice(
     val id: String, val name: String, val durationLabel: String, val tag: String,
@@ -176,7 +176,7 @@ val PRACTICES = listOf(
         "5 minutos por día mejoraron el ánimo y bajaron la frecuencia respiratoria más que la meditación, en un ensayo de un mes (Balban y otros, 2023).",
         listOf("Sentate o acostate cómodo.", "Inhalá por la nariz hasta llenar los pulmones.", "Sin soltar el aire, hacé una segunda inhalación corta.", "Exhalá lento por la boca, más largo que la inhalación.", "Repetí."),
         listOf(1, 3, 5), 3,
-        phases = listOf(Phase("Inhalá por la nariz", 2f, 1.0f), Phase("Un poco más", 1f, 1.12f), Phase("Exhalá lento por la boca", 6f, 0.62f))
+        phases = listOf(Phase("Inhalá por la nariz", 2f, 1.0f, "Inhalá"), Phase("Un poco más", 1f, 1.12f, "Más"), Phase("Exhalá lento por la boca", 6f, 0.62f, "Exhalá lento"))
     ),
     Practice(
         "caja", "Respiración en caja", "2 a 5 min", "Fuerte",
@@ -193,7 +193,7 @@ val PRACTICES = listOf(
         listOf("Sentate cómodo.", "Seguí las frases en pantalla.", "Si te distraés, está bien: volvé a la respiración."),
         listOf(3, 5, 10), 5,
         steps = listOf(
-            "Sentate cómodo y cerrá los ojos, si querés.",
+            "Sentate cómodo. Si querés, cerrá los ojos: la voz te va a guiar.",
             "Notá el aire que entra y sale, sin cambiarlo.",
             "Sentí dónde lo notás más: la nariz, el pecho o la panza.",
             "Si aparece un pensamiento, está bien. Notalo y volvé a la respiración.",

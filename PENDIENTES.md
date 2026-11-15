@@ -1,6 +1,6 @@
 # Pendientes para próximas versiones
 
-## Listo para la próxima versión (todavía sin publicar)
+## Publicado en 0.4.0
 
 - [x] Guía en Ajustes para activar la pausa, con botones que abren directo Accesibilidad, la información de la app (configuración restringida), las notificaciones y la batería.
 - [x] Aviso en Hoy cuando la pausa está apagada.
@@ -18,13 +18,16 @@
 
 ## Para más adelante
 
-- [ ] Sumar grabaciones reales (agua, bosque, fuego, cuenco) con licencia CC0 y anotar su origen.
-- [ ] Que el sonido de Calma siga sonando al cambiar de pestaña o durante el modo actividad.
+- [x] Grabaciones reales CC0 dentro de la app, con créditos.
+- [x] El sonido de Calma sigue sonando al cambiar de pestaña o durante el modo actividad.
+- [x] Guía por voz en las prácticas (voz del teléfono).
 - [ ] Bloqueo de las apps elegidas mientras corre el modo actividad.
 - [ ] Tiempo de pantalla ahorrado (permiso de uso de apps).
 - [ ] Widget en la pantalla de inicio con los botones de 1, 5 y 15 minutos.
 - [ ] Fuentes propias (Newsreader para títulos, DM Sans para textos) en vez de las del sistema.
-- [ ] Voz en español rioplatense para las meditaciones guiadas.
+- [ ] Voz grabada (rioplatense) para las meditaciones, en lugar de la voz del teléfono.
+- [ ] Revisar los sonidos sintéticos (Bruma, Cuencos…) y decidir si quedan.
+- [ ] Reemplazar los recortes de graphoflife por los originales de Freesound procesados por Tranqui.
 - [ ] Revisión del domingo con aviso automático.
 - [ ] Sección de lectura con temporizador opcional (sugerida en REVISION_DISENO.md).
 - [ ] Medir si el botón que rebota funciona: comparar con un botón quieto en lugar al azar.

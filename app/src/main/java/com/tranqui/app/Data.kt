@@ -150,6 +150,12 @@ object Store {
             p.edit().putInt("speed", v).apply(); bump()
         }
 
+    var voiceGuide: Boolean
+        get() = p.getBoolean("voice_guide", true)
+        set(v) {
+            p.edit().putBoolean("voice_guide", v).apply()
+        }
+
     // Permiso temporal después de "Entrar igual"
     fun allow(pkg: String, minutes: Int) {
         p.edit().putLong("allow_$pkg", System.currentTimeMillis() + minutes * 60_000L).apply()
@@ -175,9 +181,16 @@ object Store {
     }
 
     // Sapo del día
-    fun sapo(): String? = if (p.getLong("sapo_day", -1) == today()) p.getString("sapo", null) else null
+    fun sapo(): String? = if (p.getLong("sapo_day", -1) == today()) p.getString("sapo", null)?.takeIf { it.isNotBlank() } else null
     fun setSapo(text: String) {
-        p.edit().putString("sapo", text).putLong("sapo_day", today()).apply(); bump()
+        val e = p.edit().putString("sapo", text)
+        // Si es una tarea de otro día, el paso viejo no corresponde.
+        if (p.getLong("sapo_day", -1) != today()) e.remove("sapo_step")
+        e.putLong("sapo_day", today()).apply(); bump()
+    }
+    fun sapoStep(): String? = if (p.getLong("sapo_day", -1) == today()) p.getString("sapo_step", null) else null
+    fun setSapoStep(text: String) {
+        p.edit().putString("sapo_step", text).putLong("sapo_day", today()).apply(); bump()
     }
 
     // Notas: WOOP, Hansei, Ikigai

@@ -10,6 +10,8 @@ import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -103,6 +105,10 @@ class PauseActivity : ComponentActivity() {
         Store.init(this)
         pkg = intent.getStringExtra("pkg") ?: ""
         val name = appLabel(this, pkg)
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT)
+        )
         setContent {
             TranquiTheme {
                 BackHandler { noEntrar() }
@@ -158,7 +164,8 @@ fun PauseScreen(
     onOption: (Int) -> Unit
 ) {
     var gone by remember { mutableStateOf(false) }
-    BoxWithConstraints(Modifier.fillMaxSize().background(C.Lino)) {
+    Box(Modifier.fillMaxSize().background(C.Lino)) {
+    BoxWithConstraints(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
         val density = LocalDensity.current
         val areaW = constraints.maxWidth.toFloat()
         val reserved = with(density) { 120.dp.toPx() }
@@ -183,6 +190,7 @@ fun PauseScreen(
         if (!gone && areaW > 0 && areaH > 0) {
             BouncingEnter(areaW, areaH, windowSec, speedDp, onEnter) { gone = true }
         }
+    }
     }
 }
 

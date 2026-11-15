@@ -2,7 +2,7 @@ name: Compilar APK
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
     tags: ['v*']
   workflow_dispatch:
 
@@ -21,6 +21,23 @@ jobs:
           java-version: '17'
 
       - uses: gradle/actions/setup-gradle@v4
+
+      # Sonidos de BigSoundBank (CC0): se descargan y preparan al compilar.
+      # Si alguno falla, la app se compila igual y ese sonido no aparece.
+      - name: Sonidos de BigSoundBank
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
+          chmod +x tools/preparar_sonido.sh
+          mkdir -p "$RUNNER_TEMP/bsb"
+          while read id nombre; do
+            [ -z "$id" ] && continue
+            if curl -fsSL --retry 3 -A "Tranqui (GitHub Actions)" -o "$RUNNER_TEMP/bsb/$id.mp3" "https://bigsoundbank.com/UPLOAD/mp3/$id.mp3"; then
+              tools/preparar_sonido.sh "$RUNNER_TEMP/bsb/$id.mp3" "app/src/main/assets/soundscape/sounds/$nombre.ogg" 120 bucle || echo "::warning::No se pudo preparar $nombre"
+            else
+              echo "::warning::No se pudo descargar $id ($nombre)"
+            fi
+          done < tools/bigsoundbank.txt
+          ls -la app/src/main/assets/soundscape/sounds
 
       - name: Preparar la clave de firma
         id: firma
@@ -65,7 +82,7 @@ jobs:
       # Cada vez que cambia versionName en app/build.gradle.kts, se publica una versión nueva.
       - name: ¿Versión nueva?
         id: nueva
-        if: steps.firma.outputs.ok == 'si'
+        if: steps.firma.outputs.ok == 'si' && github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

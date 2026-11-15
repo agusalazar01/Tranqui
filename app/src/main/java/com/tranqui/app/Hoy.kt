@@ -184,6 +184,7 @@ fun HoyScreen(nav: Nav) {
                     Column(Modifier.weight(1f)) {
                         Body(if (sapo == null) "Elegí tu tarea importante" else "Tu tarea importante", bold = true)
                         Small(if (sapo == null) "La que venís postergando. Podés empezar de a poco." else sapo)
+                        Store.sapoStep()?.takeIf { it.isNotBlank() }?.let { Small("Primer paso: $it", color = C.Musgo) }
                     }
                     Chevron()
                 }

@@ -21,14 +21,14 @@ val hayFirma = keystorePath != null && keystorePassword != null && keyAliasFirma
 
 android {
     namespace = "com.tranqui.app"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.tranqui.app"
         minSdk = 26
-        targetSdk = 34
-        versionCode = 2
-        versionName = "0.2.0"
+        targetSdk = 35
+        versionCode = 4
+        versionName = "0.4.0"
     }
 
     // Firma fija: así cada versión nueva se instala encima de la anterior.
@@ -84,4 +84,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.webkit:webkit:1.11.0")
+    // Reproducción persistente con controles del sistema y pantalla de bloqueo.
+    implementation("androidx.media3:media3-exoplayer:1.4.1")
+    implementation("androidx.media3:media3-session:1.4.1")
 }

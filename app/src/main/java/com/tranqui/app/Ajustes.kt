@@ -80,6 +80,28 @@ fun openBattery(ctx: Context) =
 fun PermissionGuide(pauseOn: Boolean, notifOn: Boolean, batteryOn: Boolean) {
     val ctx = LocalContext.current
     val restricted = Build.VERSION.SDK_INT >= 33
+    var disclosure by remember { mutableStateOf(false) }
+    if (disclosure) {
+        // Aviso claro antes de pedir el permiso, como exige Google para el servicio de accesibilidad.
+        AlertDialog(
+            onDismissRequest = { disclosure = false },
+            containerColor = C.Lino,
+            title = { SerifText("Antes de activar la pausa", 22) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Body("Tranqui usa el servicio de accesibilidad de Android para una sola cosa: saber qué app se abre, y mostrar la pausa si es una de las que elegiste.", size = 15)
+                    Body("No lee lo que hay en tu pantalla, no ve lo que escribís, no guarda tu actividad y no envía nada a internet.", size = 15)
+                    Body("Lo podés apagar cuando quieras desde Ajustes de Android.", size = 15, color = C.Texto2)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { disclosure = false; openAccessibility(ctx) }) { Text("Entendido, ir a Accesibilidad", color = C.Bosque) }
+            },
+            dismissButton = {
+                TextButton(onClick = { disclosure = false }) { Text("Ahora no", color = C.Texto2) }
+            }
+        )
+    }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         SectionLabel("Para que la pausa funcione")
         GuideStep(
@@ -87,7 +109,7 @@ fun PermissionGuide(pauseOn: Boolean, notifOn: Boolean, batteryOn: Boolean) {
             "Buscá «Tranqui: pausa antes de abrir apps» en Aplicaciones instaladas y activalo." +
                 if (restricted) " Si aparece «Configuración restringida», tocá Aceptar y seguí con el paso 2." else "",
             pauseOn, "Abrir Accesibilidad"
-        ) { openAccessibility(ctx) }
+        ) { disclosure = true }
         if (restricted) {
             GuideStep(
                 2, "Permitir configuración restringida",
@@ -215,7 +237,10 @@ fun SettingsScreen(nav: Nav) {
             }
         }
         Spacer(Modifier.height(16.dp))
-        Small("Tranqui v0.1 · Todo se guarda en tu teléfono, sin cuentas ni internet.")
+        val version = remember {
+            runCatching { ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionName }.getOrNull() ?: ""
+        }
+        Small("Tranqui v$version · Todo se guarda en tu teléfono, sin cuentas y sin internet.")
         Spacer(Modifier.height(16.dp))
     }
 }

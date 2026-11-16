@@ -19,6 +19,7 @@
 ## Listo para la próxima versión (sin publicar)
 
 - [x] Sin sonidos sintéticos; escena de Calma quieta.
+- [x] Respiraciones por categoría, con la mejor para cada cosa y 8 nuevas.
 - [x] Girar la pantalla ya no corta el sonido ni vuelve atrás.
 - [x] El botón «atrás» del celular vuelve a la pantalla anterior (y cierra la biblioteca) en vez de salir.
 - [x] Sonidos «En línea»: se escuchan por internet sin guardarse en el celular.

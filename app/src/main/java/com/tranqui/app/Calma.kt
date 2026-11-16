@@ -49,21 +49,69 @@ fun CalmaScreen(nav: Nav, modifier: Modifier = Modifier) {
         ScreenTitle("Calma", "Sonidos y prácticas para bajar un cambio")
         SectionLabel("Paisajes sonoros")
         SoundscapeView("index.html", Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)))
-        SectionLabel("Prácticas guiadas")
-        PRACTICES.forEach { p ->
-            TCard(onClick = { nav.push(Route.PracticeRun(p.id)) }) {
+        SectionLabel("Respiraciones y prácticas: ¿para qué?")
+        PRACTICE_GROUPS.forEach { g ->
+            val best = PRACTICES.firstOrNull { it.id == g.best }
+            TCard(onClick = { nav.push(Route.PracticeGroupRoute(g.id)) }) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        SerifText(p.name, 19)
-                        Small(p.durationLabel)
+                        SerifText(g.title, 19)
+                        Small(g.cuando)
+                        if (best != null) Small("La mejor: ${best.name}", color = C.Musgo)
                     }
-                    Tag(p.tag)
+                    Chevron()
                 }
             }
         }
+        var todas by rememberSaveable { mutableStateOf(false) }
+        TextButton(onClick = { todas = !todas }) {
+            Text(if (todas) "Ocultar la lista completa" else "Ver todas (${PRACTICES.size})", color = C.Bosque)
+        }
+        if (todas) PRACTICES.forEach { PracticeRow(it, nav) }
+        Small("Si te mareás, volvé a respirar normal. No incluimos respiraciones rápidas tipo Wim Hof: pueden hacer desmayar sin aviso y nunca deben hacerse en el agua.")
         RecordVoiceCard(nav)
         Small("Las prácticas son para el bienestar diario y no reemplazan un tratamiento.")
         Spacer(Modifier.height(12.dp))
+    }
+}
+
+@Composable
+private fun PracticeRow(p: Practice, nav: Nav) {
+    TCard(onClick = { nav.push(Route.PracticeRun(p.id)) }) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                SerifText(p.name, 19)
+                Small(if (p.ritmo.isNotEmpty()) "${p.ritmo} · ${p.durationLabel}" else p.durationLabel)
+            }
+            Tag(p.tag)
+        }
+    }
+}
+
+@Composable
+fun PracticeGroupScreen(id: String, nav: Nav) {
+    val g = PRACTICE_GROUPS.firstOrNull { it.id == id } ?: PRACTICE_GROUPS.first()
+    val best = PRACTICES.firstOrNull { it.id == g.best }
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 18.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        BackBar(g.title) { nav.pop() }
+        Small(g.cuando)
+        if (best != null) {
+            TCard(bg = C.Bosque, bordered = false) {
+                Small("La mejor para esto", color = C.Arena)
+                SerifText(best.name, 26, color = C.Lino)
+                if (best.ritmo.isNotEmpty()) Small(best.ritmo, color = C.Arena)
+                Spacer(Modifier.height(6.dp))
+                Body(g.porQue, color = C.Lino, size = 15)
+                Spacer(Modifier.height(8.dp))
+                PrimaryButton("Empezar", bg = C.Lino, fg = C.Bosque) { nav.push(Route.PracticeRun(best.id)) }
+            }
+        }
+        SectionLabel("También te sirven")
+        g.otros.mapNotNull { o -> PRACTICES.firstOrNull { it.id == o } }.forEach { PracticeRow(it, nav) }
+        Spacer(Modifier.height(16.dp))
     }
 }
 
@@ -219,9 +267,15 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
                 PrimaryButton("Volver") { nav.pop() }
             }
             else -> {
-                Tag(p.tag)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Tag(p.tag)
+                    if (p.ritmo.isNotEmpty()) Small(p.ritmo, color = C.Musgo)
+                }
                 Body(p.que)
                 Small(p.evidencia)
+                p.cuidado?.let {
+                    TCard(bg = C.ArcillaClara, bordered = false) { Small(it, color = C.ArcillaOscura) }
+                }
                 SectionLabel("Cómo se hace")
                 p.pasos.forEachIndexed { i, s -> Body("${i + 1}. $s") }
                 SectionLabel("Duración")
@@ -253,7 +307,7 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
                     fondosDisponibles.forEach { (f, nombre) -> Choice(nombre, f == fondo) { fondo = f; Store.practiceMusic = f } }
                 }
                 Small("La música baja sola cuando habla la voz.")
-                if (p.phases.isNotEmpty()) {
+                if (p.allPhases.isNotEmpty()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Body("Vibrar en cada cambio", Modifier.weight(1f))
                         Switch(
@@ -282,6 +336,7 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
     val scale = remember { Animatable(0.8f) }
     var label by remember { mutableStateOf("Acomodate") }
     var remaining by remember { mutableIntStateOf(minutes * 60) }
+    var secs by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
         val end = System.currentTimeMillis() + minutes * 60_000L
@@ -293,19 +348,30 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
         }
         val mixer = launch { audio.run() }
         delay(1500) // la música entra sola antes de que hable nadie
-        if (p.phases.isNotEmpty()) {
+        if (p.allPhases.isNotEmpty()) {
             audio.sayAndWait(VOZ_INICIO_RESPIRAR)
             delay(1000)
             var cycle = 0
+            val inicio = System.currentTimeMillis()
+            var tramo = p.phasesAt(0f)
             while (System.currentTimeMillis() < end) {
-                for (ph in p.phases) {
+                // En las prácticas por tramos, el ritmo cambia al empezar cada vuelta.
+                val ahora = p.phasesAt((System.currentTimeMillis() - inicio).toFloat() / (end - inicio).coerceAtLeast(1))
+                if (ahora !== tramo) { tramo = ahora; cycle = 0 }
+                for (ph in tramo) {
                     label = ph.label
+                    val cuenta = launch {
+                        var s = kotlin.math.ceil(ph.seconds).toInt()
+                        while (s > 0) { secs = s; delay(1000); s-- }
+                        secs = 0
+                    }
                     // La voz acompaña las primeras vueltas y después solo de vez en cuando:
                     // el círculo y la vibración alcanzan para seguir el ritmo.
                     val say = ph.say
                     if (say != null && (cycle < 3 || cycle % 5 == 0)) audio.say(say)
                     if (vibrate && say != null) buzz(ctx, 25)
                     scale.animateTo(ph.scale, tween((ph.seconds * 1000).toInt(), easing = FastOutSlowInEasing))
+                    cuenta.cancel()
                 }
                 cycle++
                 if (cycle == 3) audio.say(VOZ_SEGUI)
@@ -346,8 +412,12 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
 
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         Spacer(Modifier.height(16.dp))
-        Box(Modifier.size(280.dp).graphicsLayer { scaleX = scale.value; scaleY = scale.value }) {
-            Mist(Modifier.fillMaxSize(), listOf(C.Salvia, C.Musgo, C.Salvia), count = 3, alpha = 0.5f, periodMs = 50000)
+        Box(Modifier.size(280.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier.fillMaxSize().graphicsLayer { scaleX = scale.value; scaleY = scale.value }) {
+                Mist(Modifier.fillMaxSize(), listOf(C.Salvia, C.Musgo, C.Salvia), count = 3, alpha = 0.5f, periodMs = 50000)
+            }
+            // Segundos que quedan de la fase: ayuda en las que tienen pausas largas (4-7-8).
+            if (p.allPhases.isNotEmpty() && secs > 0) SerifText("$secs", 44, color = C.Bosque.copy(alpha = 0.55f))
         }
         Spacer(Modifier.height(20.dp))
         // Las frases cambian con un fundido lento, sin saltos.

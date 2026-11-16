@@ -350,7 +350,62 @@ data class Practice(
     val id: String, val name: String, val durationLabel: String, val tag: String,
     val que: String, val evidencia: String, val pasos: List<String>,
     val options: List<Int>, val defaultMinutes: Int,
-    val phases: List<Phase> = emptyList(), val steps: List<String> = emptyList()
+    val phases: List<Phase> = emptyList(), val steps: List<String> = emptyList(),
+    /** Ritmo en pocas palabras, por ejemplo «4 · 6 segundos». */
+    val ritmo: String = "",
+    /** Si no está vacío, el ritmo cambia por tramos a lo largo de la práctica (se alarga la exhalación). */
+    val stages: List<List<Phase>> = emptyList(),
+    val cuidado: String? = null
+) {
+    /** Las fases que tocan según cuánto de la práctica ya pasó (0 a 1). */
+    fun phasesAt(fraction: Float): List<Phase> =
+        if (stages.isEmpty()) phases else stages[(fraction * stages.size).toInt().coerceIn(0, stages.lastIndex)]
+
+    val allPhases: List<Phase> get() = phases + stages.flatten()
+}
+
+/** Para qué querés respirar. Cada grupo recomienda UNA práctica y muestra otras que ayudan. */
+data class PracticeGroup(
+    val id: String, val title: String, val cuando: String, val best: String, val porQue: String, val otros: List<String>
+)
+
+val PRACTICE_GROUPS = listOf(
+    PracticeGroup(
+        "ansiedad", "Bajar la ansiedad ahora", "Nervios, enojo, un mal momento",
+        "suspiro",
+        "Fue la que más mejoró el ánimo en un ensayo que comparó varias respiraciones con meditación. La exhalación larga es lo que más calma, y con 1 o 2 suspiros ya se nota.",
+        listOf("exhala", "zumbido", "caja")
+    ),
+    PracticeGroup(
+        "panico", "Si sentís pánico o te falta el aire", "El corazón acelerado, sensación de ahogo",
+        "suave",
+        "En el pánico solemos respirar de más, y eso da mareo y sensación de ahogo. Lo que ayuda no es tomar aire profundo: es respirar más lento y más suave, con poco aire.",
+        listOf("diafragma", "exhala")
+    ),
+    PracticeGroup(
+        "dormir", "Para dormir", "En la cama, antes de apagar la luz",
+        "dormir",
+        "Respirar lento unos 20 minutos antes de dormir acortó el tiempo para dormirse en un estudio con personas con insomnio. Esta va alargando la exhalación de a poco, sin que tengas que contar.",
+        listOf("478", "relajacion", "zumbido")
+    ),
+    PracticeGroup(
+        "estres", "Estrés del día a día", "Un hábito de 5 a 10 minutos",
+        "coherente",
+        "Respirar unas 6 veces por minuto es lo que más estudios tiene sobre el corazón y el sistema que calma el cuerpo. Un ensayo grande no la encontró mejor que respirar lento con atención: lo que más importa es hacerla seguido.",
+        listOf("suspiro", "fosas", "meditacion")
+    ),
+    PracticeGroup(
+        "foco", "Antes de algo importante", "Un examen, una entrevista, hablar en público",
+        "caja",
+        "Contar 4-4-4-4 te ocupa la cabeza y baja el ritmo sin dejarte somnoliento. Tiene menos estudios que otras, pero es fácil de hacer en cualquier lado y sin que nadie lo note.",
+        listOf("diafragma", "fosas", "exhala")
+    ),
+    PracticeGroup(
+        "cuerpo", "Soltar el cuerpo y la mente", "Tensión, contracturas, la cabeza a mil",
+        "relajacion",
+        "Tensar y soltar los músculos tiene un efecto mediano sobre la ansiedad en muchos estudios, y se siente en el cuerpo enseguida.",
+        listOf("meditacion", "zumbido", "dormir")
+    )
 )
 
 /** Frases fijas de la voz: inicio y cierre de cada práctica. */
@@ -371,12 +426,13 @@ val PRACTICES = listOf(
             Phase("Inhalá por la nariz", 2f, 1.0f, "Inhalá por la nariz"),
             Phase("Inhalá por la nariz", 1f, 1.12f, null),
             Phase("Soltá despacio por la boca", 6f, 0.62f, "Soltá despacio")
-        )
+        ),
+        ritmo = "2 + 1 · 6 segundos"
     ),
     Practice(
-        "caja", "Respiración en caja", "2 a 5 min", "Fuerte",
+        "caja", "Respiración en caja", "2 a 5 min", "Mixta",
         "Inhalar, sostener, exhalar y sostener, 4 segundos cada uno.",
-        "También mejoró el ánimo en el mismo ensayo, algo menos que el suspiro cíclico (Balban y otros, 2023).",
+        "Mejoró el ánimo en un ensayo de un mes, algo menos que el suspiro cíclico (Balban y otros, 2023). En otro estudio con 84 estudiantes, respirar 6 veces por minuto subió más la variabilidad cardíaca que la caja o el 4-7-8 (Marchant y otros, 2025).",
         listOf("Inhalá 4 segundos.", "Sostené 4.", "Exhalá 4.", "Sostené 4.", "Repetí."),
         listOf(2, 3, 5), 3,
         phases = listOf(
@@ -384,7 +440,110 @@ val PRACTICES = listOf(
             Phase("Sostené", 4f, 1.1f, "Sostené"),
             Phase("Soltá", 4f, 0.62f, "Soltá"),
             Phase("Sostené", 4f, 0.62f, "Sostené")
-        )
+        ),
+        ritmo = "4 · 4 · 4 · 4 segundos"
+    ),
+    Practice(
+        "exhala", "Exhalación larga", "2 a 10 min", "Fuerte",
+        "Inhalás 4 segundos y soltás en 6: unas 6 respiraciones por minuto, con la salida más larga que la entrada.",
+        "Respirar lento sube la variabilidad cardíaca (señal de que el cuerpo se calma) durante y después de la práctica, en un metaanálisis de 223 estudios (Laborde y otros, 2022). Alargar la exhalación sola también la sube (Bae y otros, 2021).",
+        listOf("Inhalá por la nariz contando 4.", "Soltá por la nariz o la boca contando 6, sin apurar.", "Que no cueste: si te falta el aire, probá 3 y 5."),
+        listOf(2, 5, 10), 5,
+        phases = listOf(
+            Phase("Inhalá", 4f, 1.1f, "Inhalá"),
+            Phase("Soltá despacio", 6f, 0.62f, "Soltá despacio")
+        ),
+        ritmo = "4 · 6 segundos"
+    ),
+    Practice(
+        "coherente", "Respiración coherente", "5 a 20 min", "Mixta",
+        "Inhalar y exhalar 5,5 segundos cada uno, suave y por la nariz: unas 5,5 respiraciones por minuto.",
+        "Es el ritmo con más estudios sobre la variabilidad cardíaca (Laborde y otros, 2022). Pero en el ensayo más grande hasta ahora (400 personas, un mes), no bajó el estrés más que respirar a ritmo normal con la misma guía: los dos grupos mejoraron igual (Fincham y otros, 2023).",
+        listOf("Sentate con la espalda cómoda.", "Inhalá por la nariz mientras el círculo crece.", "Soltá por la nariz mientras se achica, igual de largo.", "Que sea suave: no hace falta llenar los pulmones."),
+        listOf(5, 10, 20), 10,
+        phases = listOf(
+            Phase("Inhalá", 5.5f, 1.1f, "Inhalá"),
+            Phase("Soltá", 5.5f, 0.62f, "Soltá")
+        ),
+        ritmo = "5,5 · 5,5 segundos"
+    ),
+    Practice(
+        "dormir", "Respiración para dormir", "10 o 20 min", "Mixta",
+        "Empieza con un ritmo parejo y la exhalación se va alargando sola: 4 y 4, después 4 y 6, y al final 4 y 8.",
+        "Veinte minutos de respiración lenta antes de dormir acortaron el tiempo para dormirse y redujeron los despertares en personas con insomnio (Tsai y otros, 2015). Fueron 14 personas: es una pista, no una prueba. No reemplaza un tratamiento del insomnio.",
+        listOf("Acostate y apagá la luz; podés poner la pantalla boca abajo.", "Seguí la voz o la vibración.", "Si te dormís en el medio, mejor."),
+        listOf(10, 20), 20,
+        stages = listOf(
+            listOf(Phase("Inhalá", 4f, 1.05f, "Inhalá"), Phase("Soltá", 4f, 0.7f, "Soltá")),
+            listOf(Phase("Inhalá", 4f, 1.05f, "Inhalá"), Phase("Soltá despacio", 6f, 0.66f, "Soltá despacio")),
+            listOf(Phase("Inhalá", 4f, 1.05f, "Inhalá"), Phase("Soltá muy despacio", 8f, 0.62f, "Soltá muy despacio"))
+        ),
+        ritmo = "4 · 4 → 4 · 6 → 4 · 8 segundos"
+    ),
+    Practice(
+        "478", "Respiración 4-7-8", "2 a 5 min", "Tradición",
+        "Inhalás 4 segundos por la nariz, sostenés 7 y soltás 8 por la boca. Popular para dormir.",
+        "Tiene pocos estudios y chicos (Vierra y otros, 2022). En una comparación directa subió menos la variabilidad cardíaca que respirar 6 veces por minuto (Marchant y otros, 2025). Si te gusta y te ayuda, usala; si no, la «Respiración para dormir» tiene más apoyo.",
+        listOf("Inhalá por la nariz contando 4.", "Sostené el aire contando 7.", "Soltá por la boca contando 8, con un soplido suave."),
+        listOf(2, 3, 5), 3,
+        phases = listOf(
+            Phase("Inhalá por la nariz", 4f, 1.1f, "Inhalá por la nariz"),
+            Phase("Sostené", 7f, 1.1f, "Sostené"),
+            Phase("Soltá por la boca", 8f, 0.62f, "Soltá por la boca")
+        ),
+        ritmo = "4 · 7 · 8 segundos",
+        cuidado = "Sostener 7 segundos puede costar. Si te mareás o te falta el aire, volvé a respirar normal."
+    ),
+    Practice(
+        "suave", "Respiración suave", "2 a 5 min", "Mixta",
+        "Inhalás poquito aire por la nariz y lo soltás lento. Menos aire, no más.",
+        "En el pánico se suele respirar de más. Un tratamiento que enseña a respirar más lento y, sobre todo, más superficial redujo el pánico y la hiperventilación en ensayos con personas con trastorno de pánico (Meuret y otros, 2010). Ellos usaban un aparato que mide el aire; esta es una versión simple, sin aparato.",
+        listOf("Cerrá la boca y respirá por la nariz.", "Tomá poquito aire, como si olieras una flor de lejos.", "Soltalo despacio.", "Las sensaciones raras pasan solas: no son peligrosas."),
+        listOf(2, 3, 5), 3,
+        phases = listOf(
+            Phase("Poquito aire por la nariz", 3f, 0.9f, "Poquito aire por la nariz"),
+            Phase("Soltá lento", 5f, 0.66f, "Soltá lento")
+        ),
+        ritmo = "3 · 5 segundos, poco aire",
+        cuidado = "Si es la primera vez que te pasa, tenés dolor en el pecho o no mejora, pedí ayuda médica."
+    ),
+    Practice(
+        "zumbido", "Zumbido de abeja", "3 a 10 min", "Mixta",
+        "Inhalás por la nariz y al soltar hacés un «mmm» suave con la boca cerrada, como una abeja. Se llama bhramari, del yoga.",
+        "El zumbido alarga la exhalación casi sin esfuerzo. En estudios chicos se asoció con menos estrés en la variabilidad cardíaca (Trivedi y otros, 2023) y con algo menos de ansiedad que respirar lento sin zumbar. Falta evidencia de calidad.",
+        listOf("Sentate y cerrá la boca.", "Inhalá por la nariz.", "Soltá haciendo «mmm», suave y grave, hasta que se termine el aire.", "Si querés, tapate las orejas con los dedos para sentir la vibración."),
+        listOf(3, 5, 10), 5,
+        phases = listOf(
+            Phase("Inhalá por la nariz", 4f, 1.1f, "Inhalá por la nariz"),
+            Phase("Soltá zumbando: mmm", 8f, 0.62f, "Soltá zumbando")
+        ),
+        ritmo = "4 · 8 segundos, zumbando"
+    ),
+    Practice(
+        "fosas", "Respiración alterna", "3 a 10 min", "Mixta",
+        "Respirás por una fosa nasal por vez, tapando la otra con el dedo. Se llama nadi shodhana, del yoga.",
+        "En 6 ensayos con 525 personas bajó la presión arterial, pero los estudios dieron resultados muy distintos entre sí (Nam y otros, 2024). Obliga a prestar atención, por eso también sirve para enfocarse.",
+        listOf("Con el pulgar derecho tapá la fosa derecha.", "Inhalá por la izquierda.", "Tapá la izquierda con el anular y soltá por la derecha.", "Inhalá por la derecha, tapala y soltá por la izquierda. Esa es una vuelta."),
+        listOf(3, 5, 10), 5,
+        phases = listOf(
+            Phase("Inhalá por la izquierda", 4f, 1.1f, "Inhalá por la izquierda"),
+            Phase("Soltá por la derecha", 6f, 0.62f, "Soltá por la derecha"),
+            Phase("Inhalá por la derecha", 4f, 1.1f, "Inhalá por la derecha"),
+            Phase("Soltá por la izquierda", 6f, 0.62f, "Soltá por la izquierda")
+        ),
+        ritmo = "4 · 6 segundos, alternando"
+    ),
+    Practice(
+        "diafragma", "Respiración con la panza", "3 a 10 min", "Mixta",
+        "Una mano en el pecho y otra en la panza: al inhalar sube la panza, el pecho casi no se mueve.",
+        "En un ensayo de 8 semanas, practicar respiración diafragmática lenta mejoró la atención sostenida y bajó el cortisol (la hormona del estrés) comparado con no practicar (Ma y otros, 2017). Fueron 40 personas.",
+        listOf("Apoyá una mano en el pecho y otra en la panza.", "Inhalá por la nariz llevando el aire a la panza.", "Soltá despacio y sentí cómo baja.", "El pecho casi quieto."),
+        listOf(3, 5, 10), 5,
+        phases = listOf(
+            Phase("Inhalá a la panza", 5f, 1.1f, "Inhalá a la panza"),
+            Phase("Soltá despacio", 7f, 0.62f, "Soltá despacio")
+        ),
+        ritmo = "5 · 7 segundos"
     ),
     Practice(
         "meditacion", "Meditación guiada", "3, 5 o 10 min", "Fuerte",

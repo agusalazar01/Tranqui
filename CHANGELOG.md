@@ -5,6 +5,10 @@
 - Prácticas: dos opciones de voz, «Silencio» y «Mi voz». Si elegís «Mi voz» y te faltan frases, te lleva a grabarlas: cada frase aparece en pantalla, la grabás y pasa sola a la siguiente.
 - «Grabar mi voz» (en Calma, en cada práctica y en Ajustes). Se puede exportar como ZIP y subirla a `voces/` para que quede en la app para todos.
 
+- Respiraciones por categoría: Bajar la ansiedad ahora, Si sentís pánico o te falta el aire, Para dormir, Estrés del día a día, Antes de algo importante y Soltar el cuerpo. Cada una recomienda la mejor, con el porqué.
+- 8 respiraciones nuevas: Exhalación larga (4·6), Respiración coherente (5,5·5,5), Respiración para dormir (la exhalación se alarga sola: 4·4 → 4·6 → 4·8), 4-7-8, Respiración suave (para el pánico: menos aire, no más), Zumbido de abeja, Respiración alterna y Respiración con la panza.
+- Cada respiración muestra su ritmo en segundos, y durante la práctica se ve la cuenta regresiva de cada fase. Las que tienen riesgo muestran un aviso.
+- La respiración en caja pasa a evidencia «Mixta» según estudios recientes.
 - Sonidos «En línea»: 20 sonidos más de BigSoundBank que se escuchan por internet y no ocupan lugar en el celular.
 - Girar la pantalla ya no corta el sonido ni te manda atrás.
 - El botón «atrás» del celular vuelve a la pantalla anterior; en las pestañas vuelve a Hoy, y en la biblioteca la cierra.

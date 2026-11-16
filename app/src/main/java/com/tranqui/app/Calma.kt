@@ -5,6 +5,14 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathMeasure
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.animation.core.LinearEasing
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.PlaybackParameters
@@ -349,7 +357,8 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
     val scale = remember { Animatable(0.8f) }
     var label by remember { mutableStateOf("Acomodate") }
     var remaining by remember { mutableIntStateOf(minutes * 60) }
-    var secs by remember { mutableIntStateOf(0) }
+    // Cuánto queda de la fase (1 = recién empieza, 0 = terminó): dibuja la barrita alrededor de la frase.
+    val resto = remember { Animatable(0f) }
 
     LaunchedEffect(Unit) {
         val end = System.currentTimeMillis() + minutes * 60_000L
@@ -374,9 +383,8 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
                 for (ph in tramo) {
                     label = ph.label
                     val cuenta = launch {
-                        var s = kotlin.math.ceil(ph.seconds).toInt()
-                        while (s > 0) { secs = s; delay(1000); s-- }
-                        secs = 0
+                        resto.snapTo(1f)
+                        resto.animateTo(0f, tween((ph.seconds * 1000).toInt(), easing = LinearEasing))
                     }
                     // La voz acompaña las primeras vueltas. Con el viento activado, después
                     // guía solo el viento; sin viento, la voz vuelve de vez en cuando.
@@ -439,13 +447,42 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
             Box(Modifier.fillMaxSize().graphicsLayer { scaleX = scale.value; scaleY = scale.value }) {
                 Mist(Modifier.fillMaxSize(), listOf(C.Salvia, C.Musgo, C.Salvia), count = 3, alpha = 0.5f, periodMs = 50000)
             }
-            // Segundos que quedan de la fase: ayuda en las que tienen pausas largas (4-7-8).
-            if (p.allPhases.isNotEmpty() && secs > 0) SerifText("$secs", 44, color = C.Bosque.copy(alpha = 0.55f))
         }
         Spacer(Modifier.height(20.dp))
         // Las frases cambian con un fundido lento, sin saltos.
-        Crossfade(targetState = label, animationSpec = tween(1400), label = "frase") { t ->
-            SerifText(t, 24, Modifier.fillMaxWidth(), align = TextAlign.Center)
+        val respira = p.allPhases.isNotEmpty()
+        val trazo = C.Musgo
+        val pista = C.Borde
+        Box(
+            Modifier.fillMaxWidth().padding(horizontal = 12.dp)
+                .then(if (!respira) Modifier else Modifier.drawBehind {
+                    // Un rectángulo redondeado alrededor de la frase que se va desarmando
+                    // con los segundos de la fase, empezando por arriba al centro.
+                    val w = 2.dp.toPx()
+                    val r = size.height / 2f
+                    val camino = Path().apply {
+                        addRoundRect(RoundRect(w / 2, w / 2, size.width - w / 2, size.height - w / 2, CornerRadius(r, r)))
+                    }
+                    drawPath(camino, pista.copy(alpha = 0.5f), style = Stroke(w))
+                    val medida = PathMeasure().apply { setPath(camino, false) }
+                    val largo = medida.length
+                    val tramo = Path()
+                    // addRoundRect empieza en la esquina de arriba a la izquierda: corremos el inicio
+                    // a la mitad del lado de arriba para que se vacíe desde el centro.
+                    val inicio = size.width / 2f - r
+                    val fin = inicio + largo * resto.value
+                    if (resto.value > 0.001f) {
+                        if (fin <= largo) medida.getSegment(inicio, fin, tramo, true)
+                        else { medida.getSegment(inicio, largo, tramo, true); medida.getSegment(0f, fin - largo, tramo, true) }
+                        drawPath(tramo, trazo, style = Stroke(w, cap = StrokeCap.Round))
+                    }
+                })
+                .padding(horizontal = 18.dp, vertical = 14.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Crossfade(targetState = label, animationSpec = tween(1400), label = "frase") { t ->
+                SerifText(t, 24, Modifier.fillMaxWidth(), align = TextAlign.Center)
+            }
         }
         Spacer(Modifier.height(8.dp))
         Small("%d:%02d restantes".format(remaining / 60, remaining % 60))

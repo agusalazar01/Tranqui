@@ -3,7 +3,6 @@
 Este archivo se arma a partir de `catalogo.json`, que es la lista única de sonidos.
 
 - **CC0 (dominio público)**: Freesound (recortes del catálogo graphoflife/meditation-sounds) y BigSoundBank (Joseph Sardin). Se pueden usar, modificar y distribuir, también comercialmente, sin pedir permiso.
-- **CC BY 4.0**: música de Kevin MacLeod (incompetech.com). Se puede usar comercialmente dando crédito: «Music by Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 — creativecommons.org/licenses/by/4.0/». El crédito aparece en Calma → Créditos de los sonidos.
 - **Generados por Tranqui**: ruidos blanco, rosa y marrón.
 
 Proceso (`tools/preparar_sonido.sh`): volumen igualado en dos pasadas con ganancia fija (sin compresión), empalme de 6 s para el bucle y Opus 96 kbps estéreo a 48 kHz. Lo que no está en el repositorio se descarga al compilar (`tools/preparar_biblioteca.py`), primero en formato sin pérdida cuando existe.
@@ -43,13 +42,6 @@ Proceso (`tools/preparar_sonido.sh`): volumen igualado en dos pasadas con gananc
 | Reloj | Hogar | #2815, BigSoundBank, Joseph Sardin, CC0 |
 | Tren | Viaje | #2727, BigSoundBank, Joseph Sardin, CC0 |
 | Tranvía | Viaje | #3525, BigSoundBank, Joseph Sardin, CC0 |
-| Gymnopédie n.º 1 | Música suave | «Gymnopedie No 1», Kevin MacLeod (incompetech.com), CC BY 4.0 |
-| Meditación I | Música suave | «Meditation Impromptu 01», Kevin MacLeod (incompetech.com), CC BY 4.0 |
-| Meditación II | Música suave | «Meditation Impromptu 02», Kevin MacLeod (incompetech.com), CC BY 4.0 |
-| Meditación III | Música suave | «Meditation Impromptu 03», Kevin MacLeod (incompetech.com), CC BY 4.0 |
-| Alma serena | Música suave | «Clean Soul», Kevin MacLeod (incompetech.com), CC BY 4.0 |
-| Soñador | Música suave | «Dreamer», Kevin MacLeod (incompetech.com), CC BY 4.0 |
-| Piano relajante | Música suave | «Relaxing Piano Music», Kevin MacLeod (incompetech.com), CC BY 4.0 |
 | Cuenco grave | Cuencos y tonos | «Tibetan singing bowl», enhuber — Freesound (vía graphoflife/meditation-sounds), CC0 |
 | Cuenco agudo | Cuencos y tonos | «singing bell hit 2», ryancacophony — Freesound (vía graphoflife/meditation-sounds), CC0 |
 | Campanas de viento | Cuencos y tonos | «Wind chimes 1», giddster — Freesound (vía graphoflife/meditation-sounds), CC0 |
@@ -60,7 +52,6 @@ Proceso (`tools/preparar_sonido.sh`): volumen igualado en dos pasadas con gananc
 
 ## Voces
 
-- Voz de mujer y de hombre (IA): Kokoro-82M (hexgrad), Apache 2.0, generadas al compilar con `tools/generar_voz.py`.
 - Voces grabadas por personas: los ZIP de la carpeta `voces/`, incluidos con permiso de quien grabó.
 
 Licencias: CC0 https://creativecommons.org/publicdomain/zero/1.0/ · CC BY 4.0 https://creativecommons.org/licenses/by/4.0/

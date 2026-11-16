@@ -1,15 +1,14 @@
 # Próxima versión (sin publicar)
 
-- Biblioteca de sonidos: unos 45 sonidos en 10 grupos (agua, lluvia y tormenta, bosque y campo, noche, fuego, hogar, viaje, música suave, cuencos y ruidos). En Calma quedan 8 destacados y el botón «Explorar la biblioteca».
+- Biblioteca de sonidos: 40 sonidos en 9 grupos (agua, lluvia y tormenta, bosque y campo, noche, fuego, hogar, viaje, cuencos y ruidos). En Calma quedan 8 destacados y el botón «Explorar la biblioteca».
 - Calidad de audio: volumen igualado sin compresión, empalmes de 6 s, Opus 96 kbps estéreo a 48 kHz; BigSoundBank en formato sin pérdida cuando se puede.
-- Música suave de Kevin MacLeod (CC BY 4.0), también como fondo de las prácticas.
-- «Grabar mi voz»: cada frase de las prácticas se graba en el momento; «Mi voz» guía las meditaciones. Se puede exportar como ZIP y subirla a `voces/` para que quede en la app para todos.
+- «Grabar mi voz» (en Calma, en cada práctica y en Ajustes): cada frase de las prácticas se graba en el momento; «Mi voz» guía las meditaciones. Se puede exportar como ZIP y subirla a `voces/` para que quede en la app para todos.
 
 - Calma: se sacaron los sonidos sintéticos de prueba.
 - Calma: la escena de arriba ya no está animada (se trababa); cambia de color con cada sonido.
 - Prácticas guiadas más suaves:
-  - Voz más tranquila generada con Kokoro (de mujer o de hombre), o sin voz. Si falta, usa la del teléfono, más lenta y grave.
-  - Música de fondo opcional (tanpura, campanas, cuenco, lluvia, arroyo, olas o ruido suave) que baja sola cuando habla la voz.
+  - Sin voces de IA ni la voz del teléfono: solo voces grabadas por personas («Mi voz» o las incluidas), o sin voz.
+  - Sonido de fondo opcional (tanpura, campanas, cuenco, lluvia, arroyo, olas o ruido suave) que baja sola cuando habla la voz.
   - Respiraciones: la voz guía las primeras vueltas y después solo de vez en cuando. Ya no dice «un poco más».
   - Relajación: primero tensás y unos segundos después la voz te dice que sueltes.
   - Textos reescritos, más calmos; las frases cambian con un fundido lento.

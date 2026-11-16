@@ -66,7 +66,7 @@ summary{font-size:12px;color:var(--bosque);cursor:pointer;min-height:32px}
  <div class="actions"><button id="play" class="btn play">Escuchar</button><button id="timer" class="btn soft">Sin temporizador</button></div>
 </section>
 <div id="home"><div class="cat">Para empezar</div><div class="grid" id="featured"></div>
-<button class="explore" id="openLib"><span>Explorar la biblioteca<small id="libCount">Naturaleza, hogar, viaje, música suave y más</small></span><span aria-hidden="true">›</span></button></div>
+<button class="explore" id="openLib"><span>Explorar la biblioteca<small id="libCount">Agua, lluvia, campo, noche, fuego, hogar, viaje y ruidos</small></span><span aria-hidden="true">›</span></button></div>
 <div id="library" class="hidden"><div class="libhead"><button class="back" id="closeLib" aria-label="Volver">‹</button><div class="libtitle">Biblioteca de sonidos</div></div>
 <div class="chips" id="chips"></div><div id="catalog"></div></div>
 <p id="note" role="status">Grabaciones reales en alta calidad, incluidas en la app: funcionan sin internet. Mejor con auriculares.</p>
@@ -101,7 +101,7 @@ function card(id){const d=INFO[id],b=document.createElement('button');b.classNam
  b.innerHTML='<span class="symbol"><svg viewBox="0 0 20 20" aria-hidden="true">'+(ICON[d.kind]||ICON.ruido)+'</svg></span><span><strong>'+d.title+'</strong><small>'+d.sub+'</small></span>';
  b.addEventListener('click',()=>{selected=id;nativeCall('select',id);if(playing)nativeCall('play',id);render()});return b}
 const featured=$('featured');Object.keys(INFO).filter(id=>INFO[id].featured).forEach(id=>featured.appendChild(card(id)));
-$('libCount').textContent=Object.keys(INFO).length+' sonidos: naturaleza, hogar, viaje, música suave y más';
+$('libCount').textContent=Object.keys(INFO).length+' sonidos: agua, lluvia, campo, noche, fuego, hogar, viaje y ruidos';
 function buildLibrary(){const cat=$('catalog');cat.innerHTML='';
  CAT.groups.forEach(g=>{if(group&&g!==group)return;const ids=Object.keys(INFO).filter(id=>INFO[id].group===g);if(!ids.length)return;
   const h=document.createElement('div');h.className='cat';h.textContent=g;cat.appendChild(h);
@@ -112,8 +112,8 @@ const chips=$('chips');['',...CAT.groups].forEach(g=>{if(g&&!Object.values(INFO)
  c.addEventListener('click',()=>{group=g;chips.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===c));buildLibrary()});chips.appendChild(c)});
 $('openLib').addEventListener('click',()=>{$('home').classList.add('hidden');$('library').classList.remove('hidden');buildLibrary();nativeCall('scrollTop')});
 $('closeLib').addEventListener('click',()=>{$('library').classList.add('hidden');$('home').classList.remove('hidden');render();setTimeout(report,50)});
-$('credits').innerHTML='Grabaciones de dominio público (CC0) de Freesound y BigSoundBank, y música de Kevin MacLeod con licencia CC BY 4.0. Tranqui las recortó, igualó el volumen sin comprimir y empalmó para que suenen en bucle.<br><br>'+
- Object.values(INFO).map(i=>'<b>'+i.title+'</b>: '+i.src).join('<br>')+'<br><br>Música: Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 — creativecommons.org/licenses/by/4.0/';
+$('credits').innerHTML='Grabaciones de dominio público (CC0) de Freesound y BigSoundBank. Tranqui las recortó, igualó el volumen sin comprimir y empalmó para que suenen en bucle.<br><br>'+
+ Object.values(INFO).map(i=>'<b>'+i.title+'</b>: '+i.src).join('<br>');
 function sync(){const p=nativeCall('isPlaying');if(p!==null)playing=!!p;const s=nativeCall('currentSound');if(s&&INFO[s])selected=s;
  const v=nativeCall('currentVolume');if(typeof v==='number'){volume=Math.round(v*100);$('vol').value=volume;$('volumeValue').textContent=volume+'%'}
  const t=nativeCall('currentTimer');if(typeof t==='number')timerMin=t;

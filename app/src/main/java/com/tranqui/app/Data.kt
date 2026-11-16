@@ -150,9 +150,9 @@ object Store {
             p.edit().putInt("speed", v).apply(); bump()
         }
 
-    /** Voz de las prácticas: "dora", "alex" o "" (sin voz). */
+    /** Voz de las prácticas: "mia", una voz incluida o "" (sin voz). */
     var practiceVoice: String
-        get() = p.getString("practice_voice", "dora") ?: "dora"
+        get() = p.getString("practice_voice", "mia") ?: "mia"
         set(v) {
             p.edit().putString("practice_voice", v).apply()
         }

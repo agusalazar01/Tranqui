@@ -26,24 +26,11 @@ jobs:
       # CC BY de Kevin MacLeod) se descarga y prepara acá. Si algo falla, ese sonido no aparece.
       - name: Biblioteca de sonidos
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg espeak-ng >/dev/null
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
           chmod +x tools/preparar_sonido.sh
           python3 tools/preparar_biblioteca.py
           python3 tools/preparar_voces.py
           du -sh app/src/main/assets/soundscape/sounds app/src/main/assets/voz 2>/dev/null || true
-
-      # Voz de las prácticas con Kokoro-82M (Apache 2.0). Si falla, la app usa la voz del teléfono.
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Voz de las prácticas
-        continue-on-error: true
-        run: |
-          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
-          pip install -q "kokoro>=0.9.4" soundfile
-          python tools/generar_voz.py
-          du -sh app/src/main/assets/voz/* || true
 
       - name: Preparar la clave de firma
         id: firma

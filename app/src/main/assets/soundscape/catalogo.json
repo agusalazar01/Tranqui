@@ -7,7 +7,6 @@
   "Fuego",
   "Hogar",
   "Viaje",
-  "Música suave",
   "Cuencos y tonos",
   "Ruido de fondo"
  ],
@@ -474,118 +473,6 @@
    },
    "mode": "bucle",
    "max": 150
-  },
-  {
-   "id": "piano-satie",
-   "title": "Gymnopédie n.º 1",
-   "sub": "Satie, piano lento",
-   "group": "Música suave",
-   "kind": "musica",
-   "credit": "«Gymnopedie No 1», Kevin MacLeod (incompetech.com), CC BY 4.0",
-   "featured": true,
-   "source": {
-    "type": "incompetech",
-    "title": "Gymnopedie No 1"
-   },
-   "mode": "bucle",
-   "max": 900,
-   "lufs": -21
-  },
-  {
-   "id": "meditacion-1",
-   "title": "Meditación I",
-   "sub": "Piano y espacio",
-   "group": "Música suave",
-   "kind": "musica",
-   "credit": "«Meditation Impromptu 01», Kevin MacLeod (incompetech.com), CC BY 4.0",
-   "featured": false,
-   "source": {
-    "type": "incompetech",
-    "title": "Meditation Impromptu 01"
-   },
-   "mode": "bucle",
-   "max": 900,
-   "lufs": -21
-  },
-  {
-   "id": "meditacion-2",
-   "title": "Meditación II",
-   "sub": "Notas largas",
-   "group": "Música suave",
-   "kind": "musica",
-   "credit": "«Meditation Impromptu 02», Kevin MacLeod (incompetech.com), CC BY 4.0",
-   "featured": false,
-   "source": {
-    "type": "incompetech",
-    "title": "Meditation Impromptu 02"
-   },
-   "mode": "bucle",
-   "max": 900,
-   "lufs": -21
-  },
-  {
-   "id": "meditacion-3",
-   "title": "Meditación III",
-   "sub": "Suave y abierta",
-   "group": "Música suave",
-   "kind": "musica",
-   "credit": "«Meditation Impromptu 03», Kevin MacLeod (incompetech.com), CC BY 4.0",
-   "featured": false,
-   "source": {
-    "type": "incompetech",
-    "title": "Meditation Impromptu 03"
-   },
-   "mode": "bucle",
-   "max": 900,
-   "lufs": -21
-  },
-  {
-   "id": "alma-serena",
-   "title": "Alma serena",
-   "sub": "Piano cálido",
-   "group": "Música suave",
-   "kind": "musica",
-   "credit": "«Clean Soul», Kevin MacLeod (incompetech.com), CC BY 4.0",
-   "featured": false,
-   "source": {
-    "type": "incompetech",
-    "title": "Clean Soul"
-   },
-   "mode": "bucle",
-   "max": 900,
-   "lufs": -21
-  },
-  {
-   "id": "sonador",
-   "title": "Soñador",
-   "sub": "Ambiente tranquilo",
-   "group": "Música suave",
-   "kind": "musica",
-   "credit": "«Dreamer», Kevin MacLeod (incompetech.com), CC BY 4.0",
-   "featured": false,
-   "source": {
-    "type": "incompetech",
-    "title": "Dreamer"
-   },
-   "mode": "bucle",
-   "max": 900,
-   "lufs": -21
-  },
-  {
-   "id": "piano-relajante",
-   "title": "Piano relajante",
-   "sub": "Para bajar el ritmo",
-   "group": "Música suave",
-   "kind": "musica",
-   "credit": "«Relaxing Piano Music», Kevin MacLeod (incompetech.com), CC BY 4.0",
-   "featured": false,
-   "source": {
-    "type": "incompetech",
-    "title": "Relaxing Piano Music"
-   },
-   "mode": "bucle",
-   "max": 900,
-   "lufs": -21
   },
   {
    "id": "cuenco-grave",

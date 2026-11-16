@@ -40,6 +40,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Store.init(this)
+        Voces.migrar(this)
         Notif.createChannels(this)
         if (Build.VERSION.SDK_INT >= 33 &&
             checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
@@ -74,7 +75,8 @@ sealed interface Route {
     data class HipnoEdit(val id: String) : Route
     data class PracticeRun(val id: String, val minutes: Int? = null) : Route
     data object Settings : Route
-    data object VoiceRecord : Route
+    data class VoiceRecord(val practiceId: String, val vozId: String) : Route
+    data object Voices : Route
 }
 
 class Nav(
@@ -186,7 +188,8 @@ private fun Detail(top: Route, nav: Nav) {
         is Route.HipnoEdit -> HipnoEditScreen(top.id, nav)
         is Route.PracticeRun -> PracticeScreen(top.id, nav, top.minutes)
         Route.Settings -> SettingsScreen(nav)
-        Route.VoiceRecord -> VoiceRecordScreen(nav)
+        is Route.VoiceRecord -> VoiceRecordScreen(top.practiceId, top.vozId, nav)
+        Route.Voices -> VocesScreen(nav)
     }
 }
 

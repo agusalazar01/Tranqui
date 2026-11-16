@@ -228,6 +228,7 @@ fun HipnosisScreen(nav: Nav) {
 
 @Composable
 fun HipnoEditScreen(id: String, nav: Nav) {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
     Store.tick.intValue
     val g = HIPNO_GUIONES.firstOrNull { it.id == id } ?: HIPNO_GUIONES.first()
     val guardado = remember(id) { hipnoValores(g.id) }
@@ -254,7 +255,7 @@ fun HipnoEditScreen(id: String, nav: Nav) {
             TCard(bg = C.Papel) {
                 g.partes.forEach { Body(llenar(it, valores), size = 15) }
             }
-            PrimaryButton("Grabar con mi voz") { guardar(); Store.practiceVoice = "mia"; nav.push(Route.VoiceRecord) }
+            PrimaryButton("Grabar esta sesión con mi voz") { guardar(); val vid = Voces.elegidaOCrear(ctx); Store.practiceVoice = vid; nav.push(Route.VoiceRecord("hip_${g.id}", vid)) }
             SoftButton("Empezar la sesión", Modifier.fillMaxWidth()) { guardar(); nav.push(Route.PracticeRun("hip_${g.id}")) }
             Small("Al grabar: voz más grave y más baja que la normal, pareja y lenta. A medida que avanza la sesión, andá bajando un poco más el ritmo.")
         } else {

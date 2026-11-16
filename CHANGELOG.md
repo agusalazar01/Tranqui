@@ -5,6 +5,7 @@
 - 4 meditaciones guiadas nuevas, escritas en castellano de acá: «Respiración, cuerpo y sonidos», «Estar con lo que pesa» (para la ansiedad), «Escaneo para dormir» y «Benevolencia». Se pueden grabar con tu voz y van con el sonido de fondo. Nueva categoría «Meditar» en Calma.
 - Autohipnosis (en Calma): 6 guiones para completar con tus palabras —Calma ante lo que te preocupa, Tu yo del futuro, Arrancar lo que postergás, Confianza, Un hábito nuevo y Dormir profundo—. Se graban con tu voz. Si cortás antes, igual se hace la cuenta para volver.
 - Fondos nuevos: tambor para trance (4 golpes por segundo), tambor lento, tambor chamánico, tambor grave, y tres de didgeridoo. Grabaciones reales de Freesound (CC0).
+- Voces por práctica: cada meditación, respiración o hipnosis se graba por separado, desde su propia pantalla, con solo sus frases. Podés tener varias voces (la tuya, la de alguien que te dé permiso), elegir cuál suena en cada práctica y borrarlas en «Tus voces». Lo que ya tenías grabado pasa a ser «Mi voz».
 - Tu voz es tuya: lo que grabás queda solo en tu celular. Se sacó la opción de exportar e incluir voces en la app para todos, y las grabaciones no van a copias de seguridad ni a otro teléfono. Si grabás la voz de otra persona, hacelo con su permiso.
 - Se sacó la guía con sonido de viento en las respiraciones: interrumpía más de lo que ayudaba.
 

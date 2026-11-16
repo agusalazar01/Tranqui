@@ -259,14 +259,18 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
     var vibrate by remember { mutableStateOf(true) }
     val ctx = LocalContext.current
     val fondosDisponibles = remember { fondos(ctx) }
-    val total = remember { voicePhrases().size }
-    // Se vuelve a contar al regresar de «Grabar mi voz».
-    var grabadas by remember { mutableIntStateOf(myVoiceCount(ctx)) }
-    LifecycleResumeEffect(Unit) {
-        grabadas = myVoiceCount(ctx)
+    val frases = remember(id) { practicePhrases(p) }
+    val total = frases.size
+    Store.tick.intValue
+    val voces = Voces.list()
+    var voz by remember { mutableStateOf(Store.practiceVoice.takeIf { v -> voces.any { it.id == v } } ?: "") }
+    var nuevaVoz by remember { mutableStateOf(false) }
+    // Se vuelve a contar al regresar de grabar.
+    var grabadas by remember { mutableIntStateOf(0) }
+    LifecycleResumeEffect(voz) {
+        grabadas = if (voz.isEmpty()) 0 else Voces.count(ctx, voz, frases)
         onPauseOrDispose { }
     }
-    var voz by remember { mutableStateOf(if (Store.practiceVoice == "mia") "mia" else "") }
     var fondo by remember { mutableStateOf(Store.practiceMusic.takeIf { f -> fondosDisponibles.any { it.first == f } } ?: "") }
 
     Column(
@@ -313,23 +317,22 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
                     p.options.forEach { m -> Choice("$m min", m == minutes) { minutes = m } }
                 }
                 SectionLabel("Voz")
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    VOCES.forEach { (v, nombre) ->
-                        Choice(nombre, v == voz) {
-                            voz = v; Store.practiceVoice = v
-                            // Si elegís «Mi voz» y faltan frases, te lleva a grabarlas una por una.
-                            if (v == "mia" && grabadas < total) nav.push(Route.VoiceRecord)
-                        }
-                    }
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Choice("Silencio", voz.isEmpty()) { voz = ""; Store.practiceVoice = "" }
+                    voces.forEach { v -> Choice(v.text, v.id == voz) { voz = v.id; Store.practiceVoice = v.id } }
+                    Choice("+ Nueva voz", false) { nuevaVoz = true }
                 }
-                if (voz == "mia") {
+                if (voz.isNotEmpty()) {
                     if (grabadas < total) {
-                        TCard(onClick = { nav.push(Route.VoiceRecord) }, bg = C.ArcillaClara, bordered = false) {
-                            Body("Te faltan ${total - grabadas} de $total frases", color = C.ArcillaOscura, bold = true)
-                            Small("Tocá para seguir grabando. Las que falten se leen en pantalla.", color = C.ArcillaOscura)
+                        TCard(onClick = { nav.push(Route.VoiceRecord(p.id, voz)) }, bg = C.ArcillaClara, bordered = false) {
+                            Body(
+                                if (grabadas == 0) "Grabar esta práctica con «${Voces.name(voz)}»" else "Te faltan ${total - grabadas} de $total frases",
+                                color = C.ArcillaOscura, bold = true
+                            )
+                            Small("Son $total frases, solo de esta práctica. Las que falten se leen en pantalla.", color = C.ArcillaOscura)
                         }
                     } else {
-                        TextButton(onClick = { nav.push(Route.VoiceRecord) }) { Text("Escuchar o regrabar mis frases", color = C.Bosque) }
+                        TextButton(onClick = { nav.push(Route.VoiceRecord(p.id, voz)) }) { Text("Escuchar o regrabar las frases", color = C.Bosque) }
                     }
                 }
                 SectionLabel("Música de fondo")
@@ -347,6 +350,11 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
                     }
                 }
                 PrimaryButton("Empezar") { running = true }
+                if (nuevaVoz) NuevaVozDialog({ nuevaVoz = false }) { nombre ->
+                    val nid = Voces.add(ctx, nombre)
+                    Store.practiceVoice = nid; voz = nid; nuevaVoz = false
+                    nav.push(Route.VoiceRecord(p.id, nid))
+                }
             }
         }
     }
@@ -491,13 +499,13 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
 
 /**
  * Audio de las prácticas: voz y música de fondo.
- * - Voz: solo tu propia grabación, guardada en este celular (filesDir/mivoz).
+ * - Voz: una de tus voces grabadas, guardada solo en este celular (filesDir/voces/<id>).
  * - Música: una grabación del catálogo en bucle, que baja sola mientras habla la voz.
  * Todo se usa desde el hilo principal (ExoPlayer lo necesita así).
  */
 class PracticeAudio(ctx: Context, private val voz: String, private val fondo: String) {
     private val app = ctx.applicationContext
-    private val myDir = java.io.File(app.filesDir, "mivoz")
+    private val myDir = java.io.File(app.filesDir, "voces/$voz")
     private val music: ExoPlayer? = if (fondo.isEmpty()) null else ExoPlayer.Builder(app).build().apply {
         setMediaItem(MediaItem.fromUri("asset:///soundscape/sounds/$fondo.ogg"))
         repeatMode = Player.REPEAT_MODE_ONE
@@ -573,21 +581,16 @@ class PracticeAudio(ctx: Context, private val voz: String, private val fondo: St
     }
 }
 
-/** Acceso a «Grabar mi voz», visible en Calma. */
+/** Acceso a tus voces, visible en Calma. */
 @Composable
 fun RecordVoiceCard(nav: Nav) {
-    val ctx = LocalContext.current
-    val total = remember { voicePhrases().size }
-    var n by remember { mutableIntStateOf(myVoiceCount(ctx)) }
-    LifecycleResumeEffect(Unit) {
-        n = myVoiceCount(ctx)
-        onPauseOrDispose { }
-    }
-    TCard(onClick = { nav.push(Route.VoiceRecord) }, bg = C.SalviaClara, bordered = false) {
+    Store.tick.intValue
+    val n = Voces.list().size
+    TCard(onClick = { nav.push(Route.Voices) }, bg = C.SalviaClara, bordered = false) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Body("Grabar mi voz", bold = true)
-                Small(if (n == 0) "Grabá las frases con tu voz y las prácticas te guían con ella." else "$n de $total frases grabadas. Tocá para seguir.")
+                Body("Tus voces", bold = true)
+                Small(if (n == 0) "Cada práctica se puede grabar con tu voz, o con la de alguien que te dé permiso." else "$n ${if (n == 1) "voz" else "voces"} en este celular. Tocá para verlas o borrarlas.")
             }
             Chevron()
         }

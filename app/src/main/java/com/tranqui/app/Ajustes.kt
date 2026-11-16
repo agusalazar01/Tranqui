@@ -201,11 +201,11 @@ fun SettingsScreen(nav: Nav) {
         PermissionGuide(enabled, notifOn, batteryOn)
 
         SectionLabel("Voz de las prácticas")
-        TCard(onClick = { nav.push(Route.VoiceRecord) }) {
+        TCard(onClick = { nav.push(Route.Voices) }) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Body("Grabar mi voz", bold = true)
-                    Small("Leé cada frase y grabala: las meditaciones te guían con tu voz.")
+                    Body("Tus voces", bold = true)
+                    Small("Ver o borrar las voces grabadas. Cada práctica se graba desde su pantalla.")
                 }
                 Chevron()
             }

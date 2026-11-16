@@ -32,22 +32,67 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.delay
 import java.io.File
 
-/**
- * Todas las frases que dice la voz en las prácticas. «…» separa dos frases que se dicen con una pausa en el medio.
- */
-fun voicePhrases(): List<String> {
-    val textos = mutableListOf(VOZ_INICIO_RESPIRAR, VOZ_INICIO_GUIA, VOZ_SEGUI, VOZ_CIERRE)
-    PRACTICES.forEach { p -> p.allPhases.mapNotNullTo(textos) { it.say } }
-    PRACTICES.forEach { p -> textos += p.steps; if (p.cierre.isNotEmpty()) textos += p.cierre }
-    textos += hipnoFrases()
+/** Las frases que dice la voz en UNA práctica. «…» separa dos frases con una pausa en el medio. */
+fun practicePhrases(p: Practice): List<String> {
+    val textos = mutableListOf<String>()
+    if (p.allPhases.isNotEmpty()) {
+        textos += VOZ_INICIO_RESPIRAR
+        p.allPhases.mapNotNullTo(textos) { it.say }
+        textos += VOZ_SEGUI
+    } else {
+        textos += VOZ_INICIO_GUIA
+        textos += p.steps
+    }
+    textos += p.cierre.ifEmpty { VOZ_CIERRE }
     return textos.flatMap { t -> t.split("…").map { it.trim() } }.filter { it.isNotEmpty() }.distinct()
 }
 
-fun myVoiceDir(ctx: Context): File = File(ctx.filesDir, "mivoz").apply { mkdirs() }
+/**
+ * Voces grabadas en este celular. Cada voz es una carpeta (filesDir/voces/<id>) con una grabación
+ * por frase; las frases que se repiten entre prácticas («Inhalá», el cierre…) se graban una sola vez por voz.
+ */
+object Voces {
+    fun list(): List<Item> = Store.items("voces")
 
-fun myVoiceCount(ctx: Context): Int {
-    val keys = voicePhrases().map { voiceKey(it) }.toSet()
-    return myVoiceDir(ctx).listFiles()?.count { it.extension == "m4a" && it.nameWithoutExtension in keys } ?: 0
+    fun dir(ctx: Context, id: String): File = File(ctx.filesDir, "voces/$id").apply { mkdirs() }
+
+    fun name(id: String): String = list().firstOrNull { it.id == id }?.text ?: "Voz"
+
+    fun add(ctx: Context, nombre: String): String {
+        val id = Goal.newId()
+        Store.saveItems("voces", list() + Item(id, nombre.trim().ifBlank { "Mi voz" }))
+        dir(ctx, id)
+        return id
+    }
+
+    fun delete(ctx: Context, id: String) {
+        File(ctx.filesDir, "voces/$id").deleteRecursively()
+        Store.saveItems("voces", list().filter { it.id != id })
+        if (Store.practiceVoice == id) Store.practiceVoice = ""
+    }
+
+    fun count(ctx: Context, id: String, phrases: List<String>): Int {
+        val files = File(ctx.filesDir, "voces/$id").list()?.toSet() ?: return 0
+        return phrases.count { voiceKey(it) + ".m4a" in files }
+    }
+
+    fun total(ctx: Context, id: String): Int = File(ctx.filesDir, "voces/$id").list()?.count { it.endsWith(".m4a") } ?: 0
+
+    /** La voz elegida si sigue existiendo; si no hay ninguna, crea «Mi voz». */
+    fun elegidaOCrear(ctx: Context): String {
+        val l = list()
+        return l.firstOrNull { it.id == Store.practiceVoice }?.id ?: l.firstOrNull()?.id ?: add(ctx, "Mi voz")
+    }
+
+    /** Las grabaciones de versiones anteriores (filesDir/mivoz) pasan a ser la voz «Mi voz». */
+    fun migrar(ctx: Context) {
+        val viejo = File(ctx.filesDir, "mivoz")
+        if (!viejo.isDirectory || viejo.list().isNullOrEmpty()) return
+        val id = add(ctx, "Mi voz")
+        viejo.listFiles()?.forEach { it.renameTo(File(dir(ctx, id), it.name)) }
+        viejo.deleteRecursively()
+        if (Store.practiceVoice == "mia" || Store.practiceVoice.isEmpty()) Store.practiceVoice = id
+    }
 }
 
 /** Graba frase por frase con el micrófono del teléfono. */
@@ -105,10 +150,11 @@ private class Grabadora(private val ctx: Context) {
 }
 
 @Composable
-fun VoiceRecordScreen(nav: Nav) {
+fun VoiceRecordScreen(practiceId: String, vozId: String, nav: Nav) {
     val ctx = LocalContext.current
-    val phrases = remember { voicePhrases() }
-    val dir = remember { myVoiceDir(ctx) }
+    val practica = remember(practiceId) { practiceById(practiceId) }
+    val phrases = remember(practiceId) { practicePhrases(practica) }
+    val dir = remember(vozId) { Voces.dir(ctx, vozId) }
     val grab = remember { Grabadora(ctx) }
     DisposableEffect(Unit) { onDispose { grab.release() } }
 
@@ -169,10 +215,11 @@ fun VoiceRecordScreen(nav: Nav) {
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        BackBar("Grabar mi voz") { nav.pop() }
+        BackBar(practica.name) { nav.pop() }
+        Small("Voz: ${Voces.name(vozId)}", color = C.Musgo)
         Small(
-            "Grabá cada frase con tu voz y las prácticas te van a guiar con ella. " +
-                "Buscá un lugar callado, sostené el celular a un palmo de la boca y hablá lento y suave, como si acompañaras a alguien."
+            "Grabá solo las frases de esta práctica. Buscá un lugar callado, sostené el celular a un palmo de la boca " +
+                "y hablá lento y suave, como si acompañaras a alguien."
         )
         val count = done.count { it }
         Box(Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(5.dp)).background(C.SalviaClara)) {
@@ -182,8 +229,8 @@ fun VoiceRecordScreen(nav: Nav) {
 
         if (count == phrases.size) {
             TCard(bg = C.SalviaClara, bordered = false) {
-                SerifText("¡Listo! Grabaste todas las frases.", 20)
-                Small("Elegí «Mi voz» en cualquier meditación. Podés volver acá para escuchar o regrabar.")
+                SerifText("¡Listo! Esta práctica ya tiene tu voz.", 20)
+                Small("Podés volver acá para escuchar o regrabar cualquier frase.")
                 Spacer(Modifier.height(8.dp))
                 SoftButton("Volver") { nav.pop() }
             }
@@ -243,7 +290,7 @@ fun VoiceRecordScreen(nav: Nav) {
             }
         }
 
-        SectionLabel("Todas las frases")
+        SectionLabel("Las frases de esta práctica")
         phrases.forEachIndexed { i, t ->
             Row(
                 Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
@@ -270,5 +317,92 @@ fun VoiceRecordScreen(nav: Nav) {
         )
         Small("Si grabás la voz de otra persona, hacelo solo con su permiso.")
         Spacer(Modifier.height(16.dp))
+    }
+}
+
+/** Crear una voz nueva: nombre y de quién es (si es de otra persona, con su permiso). */
+@Composable
+fun NuevaVozDialog(onDismiss: () -> Unit, onCreate: (String) -> Unit) {
+    var nombre by remember { mutableStateOf("") }
+    var deOtro by remember { mutableStateOf(false) }
+    var permiso by remember { mutableStateOf(false) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = C.Lino,
+        title = { SerifText("Nueva voz", 22) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedTextField(
+                    value = nombre, onValueChange = { nombre = it.take(24) },
+                    label = { Text("Nombre") }, placeholder = { Text("Por ejemplo: Mi voz, Voz de Ana") },
+                    singleLine = true, modifier = Modifier.fillMaxWidth()
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Choice("Es mi voz", !deOtro) { deOtro = false }
+                    Choice("De otra persona", deOtro) { deOtro = true }
+                }
+                if (deOtro) Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = permiso, onCheckedChange = { permiso = it })
+                    Small("Esa persona sabe que la grabo y me dio permiso.")
+                }
+                Small("Queda guardada solo en este celular.")
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onCreate(nombre) }, enabled = nombre.isNotBlank() && (!deOtro || permiso)) {
+                Text("Crear", color = C.Bosque)
+            }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancelar", color = C.Texto2) } }
+    )
+}
+
+/** Tus voces: cuántas frases tiene cada una, y la opción de borrarlas. */
+@Composable
+fun VocesScreen(nav: Nav) {
+    val ctx = LocalContext.current
+    Store.tick.intValue
+    var nueva by remember { mutableStateOf(false) }
+    var borrar by remember { mutableStateOf<Item?>(null) }
+    val voces = Voces.list()
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 18.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        BackBar("Tus voces") { nav.pop() }
+        Small("Cada práctica se graba por separado, desde su pantalla: elegís la voz y tocás «Grabar esta práctica». Solo grabás las frases de esa práctica.")
+        if (voces.isEmpty()) Body("Todavía no hay voces grabadas.", color = C.Texto2)
+        voces.forEach { v ->
+            val n = Voces.total(ctx, v.id)
+            TCard {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Body(v.text, bold = true)
+                        Small(if (n == 0) "Sin grabaciones" else "$n frases grabadas")
+                    }
+                    TextButton(onClick = { borrar = v }) { Text("Borrar", color = C.ArcillaOscura) }
+                }
+            }
+        }
+        SoftButton("+ Nueva voz", Modifier.fillMaxWidth()) { nueva = true }
+        SectionLabel("Tu voz es tuya")
+        Small(
+            "Las grabaciones quedan solo en este celular, dentro de Tranqui. No se suben a internet, no se comparten " +
+                "y no se incluyen en copias de seguridad. Si borrás la app, se borran."
+        )
+        Small("Si grabás la voz de otra persona, hacelo solo con su permiso.")
+    }
+    if (nueva) NuevaVozDialog({ nueva = false }) { nombre ->
+        Store.practiceVoice = Voces.add(ctx, nombre); nueva = false
+    }
+    borrar?.let { v ->
+        AlertDialog(
+            onDismissRequest = { borrar = null },
+            containerColor = C.Lino,
+            title = { SerifText("¿Borrar «${v.text}»?", 20) },
+            text = { Small("Se borran todas sus grabaciones de este celular. No se puede deshacer.") },
+            confirmButton = { TextButton(onClick = { Voces.delete(ctx, v.id); borrar = null }) { Text("Borrar", color = C.ArcillaOscura) } },
+            dismissButton = { TextButton(onClick = { borrar = null }) { Text("Cancelar", color = C.Texto2) } }
+        )
     }
 }

@@ -2,4 +2,5 @@
 <!-- Android 11 o anterior: las grabaciones de voz no van a la copia de seguridad. -->
 <full-backup-content>
     <exclude domain="file" path="mivoz/" />
+    <exclude domain="file" path="voces/" />
 </full-backup-content>

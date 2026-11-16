@@ -1,7 +1,10 @@
+# Próxima versión (sin publicar)
+
+- Se sacó la guía con sonido de viento en las respiraciones: interrumpía más de lo que ayudaba.
+
 # Tranqui 0.5.1
 
 - La cuenta regresiva ya no es un número sobre el círculo: es una barrita fina alrededor de la frase («Inhalá», «Sostené», «Soltá») que se va vaciando con los segundos de cada fase.
-- Respiraciones guiadas con sonido de viento: después de las primeras vueltas con voz, el viento viene al inhalar, se aquieta hasta quedar quieto al sostener y sopla al soltar. Es una grabación real de viento (CC0). Se puede apagar.
 
 # Tranqui 0.5.0
 

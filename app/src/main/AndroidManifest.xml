@@ -28,6 +28,8 @@
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="@xml/respaldo"
+        android:dataExtractionRules="@xml/extraccion"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -95,14 +97,5 @@
             </intent-filter>
         </receiver>
         <!-- Para compartir el ZIP de «Grabar mi voz». -->
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.archivos"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/archivos" />
-        </provider>
     </application>
 </manifest>

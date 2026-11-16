@@ -491,18 +491,13 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
 
 /**
  * Audio de las prácticas: voz y música de fondo.
- * - Voz: grabaciones generadas con Kokoro (Apache 2.0) en assets/voz/<voz>/; si no están,
- *   usa la voz del teléfono, más lenta y grave de lo normal.
+ * - Voz: solo tu propia grabación, guardada en este celular (filesDir/mivoz).
  * - Música: una grabación del catálogo en bucle, que baja sola mientras habla la voz.
  * Todo se usa desde el hilo principal (ExoPlayer lo necesita así).
  */
 class PracticeAudio(ctx: Context, private val voz: String, private val fondo: String) {
     private val app = ctx.applicationContext
-    private fun assetSet(path: String): Set<String> = runCatching { app.assets.list(path)?.toSet() }.getOrNull() ?: emptySet()
     private val myDir = java.io.File(app.filesDir, "mivoz")
-    /** Si falta una frase tuya y hay una voz grabada por una persona incluida en la app, se usa esa. */
-    private val bundled: String? = assetSet("voz").firstOrNull { assetSet("voz/$it").isNotEmpty() }
-    private val bundledFiles: Set<String> = bundled?.let { assetSet("voz/$it") } ?: emptySet()
     private val music: ExoPlayer? = if (fondo.isEmpty()) null else ExoPlayer.Builder(app).build().apply {
         setMediaItem(MediaItem.fromUri("asset:///soundscape/sounds/$fondo.ogg"))
         repeatMode = Player.REPEAT_MODE_ONE
@@ -521,10 +516,9 @@ class PracticeAudio(ctx: Context, private val voz: String, private val fondo: St
         music?.play()
     }
 
-    /** Solo voces grabadas por personas. Si falta una frase, no se dice: queda escrita en pantalla. */
+    /** Solo tu propia grabación, guardada en este celular. Si falta una frase, no se dice: queda escrita en pantalla. */
     private fun uriFor(key: String): String? = when {
         java.io.File(myDir, "$key.m4a").exists() -> android.net.Uri.fromFile(java.io.File(myDir, "$key.m4a")).toString()
-        "$key.ogg" in bundledFiles -> "asset:///voz/$bundled/$key.ogg"
         else -> null
     }
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12 o más: las grabaciones de voz no salen del celular (ni a la nube ni a otro teléfono). -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" path="mivoz/" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="file" path="mivoz/" />
+    </device-transfer>
+</data-extraction-rules>

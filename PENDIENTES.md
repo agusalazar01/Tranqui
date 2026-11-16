@@ -38,7 +38,7 @@
 - [ ] Tiempo de pantalla ahorrado (permiso de uso de apps).
 - [ ] Widget en la pantalla de inicio con los botones de 1, 5 y 15 minutos.
 - [ ] Fuentes propias (Newsreader para títulos, DM Sans para textos) en vez de las del sistema.
-- [ ] Grabar la voz rioplatense con «Grabar mi voz» y subir el ZIP a `voces/`.
+- [x] Las voces grabadas quedan solo en el celular de cada persona (no se incluyen en la app ni en copias de seguridad).
 - [ ] Reemplazar los recortes de graphoflife por los originales de Freesound procesados por Tranqui.
 - [ ] Revisión del domingo con aviso automático.
 - [ ] Sección de lectura con temporizador opcional (sugerida en REVISION_DISENO.md).

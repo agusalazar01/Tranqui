@@ -29,11 +29,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import kotlinx.coroutines.delay
 import java.io.File
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 
 /**
  * Todas las frases que dice la voz en las prácticas. «…» separa dos frases que se dicen con una pausa en el medio.
@@ -123,7 +120,6 @@ fun VoiceRecordScreen(nav: Nav) {
     var playing by remember { mutableStateOf(false) }
     var seconds by remember { mutableIntStateOf(0) }
     var error by remember { mutableStateOf<String?>(null) }
-    var exportName by remember { mutableStateOf("agustin") }
     var autoNext by remember { mutableStateOf(true) }
     var advance by remember { mutableIntStateOf(0) }
     // Después de grabar, pasa sola a la próxima frase que falta (si está activado).
@@ -267,42 +263,12 @@ fun VoiceRecordScreen(nav: Nav) {
             }
         }
 
-        SectionLabel("Incluirla en la app para todos")
+        SectionLabel("Tu voz es tuya")
         Small(
-            "Exportá tus grabaciones como ZIP y subilo a la carpeta «voces» del repositorio de Tranqui en GitHub " +
-                "(Add file → Upload files). Al compilar se limpian los silencios y el ruido, y la voz queda dentro de la app."
+            "Las grabaciones quedan solo en este celular, dentro de Tranqui. No se suben a internet, no se comparten " +
+                "y no se incluyen en copias de seguridad. Si borrás la app, se borran."
         )
-        OutlinedTextField(
-            value = exportName, onValueChange = { exportName = it.filter { c -> c.isLetterOrDigit() }.take(20) },
-            label = { Text("Nombre de la voz") }, singleLine = true, modifier = Modifier.fillMaxWidth()
-        )
-        PrimaryButton("Exportar ZIP") {
-            val zip = exportVoice(ctx, exportName.ifBlank { "mivoz" })
-            if (zip == null) error = "Todavía no grabaste ninguna frase." else shareFile(ctx, zip)
-        }
+        Small("Si grabás la voz de otra persona, hacelo solo con su permiso.")
         Spacer(Modifier.height(16.dp))
     }
-}
-
-/** Arma un ZIP con las frases grabadas y un texto que dice qué frase es cada archivo. */
-fun exportVoice(ctx: Context, name: String): File? {
-    val files = myVoiceDir(ctx).listFiles()?.filter { it.extension == "m4a" } ?: return null
-    if (files.isEmpty()) return null
-    val out = File(ctx.cacheDir, "$name.zip")
-    ZipOutputStream(out.outputStream()).use { z ->
-        files.forEach { f ->
-            z.putNextEntry(ZipEntry(f.name)); f.inputStream().use { it.copyTo(z) }; z.closeEntry()
-        }
-        z.putNextEntry(ZipEntry("frases.txt"))
-        z.write(voicePhrases().joinToString("\n") { "${voiceKey(it)}  $it" }.toByteArray())
-        z.closeEntry()
-    }
-    return out
-}
-
-fun shareFile(ctx: Context, file: File) {
-    val uri = FileProvider.getUriForFile(ctx, ctx.packageName + ".archivos", file)
-    val send = Intent(Intent.ACTION_SEND).setType("application/zip")
-        .putExtra(Intent.EXTRA_STREAM, uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    ctx.startActivity(Intent.createChooser(send, "Exportar mi voz").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 }

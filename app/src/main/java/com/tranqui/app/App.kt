@@ -69,6 +69,7 @@ sealed interface Route {
     data class Tool(val kind: String) : Route
     data class Situation(val id: String) : Route
     data class PracticeGroupRoute(val id: String) : Route
+    data object FeelingRest : Route
     data class PracticeRun(val id: String, val minutes: Int? = null) : Route
     data object Settings : Route
     data object VoiceRecord : Route
@@ -115,6 +116,13 @@ fun App(incoming: MutableState<Intent?>) {
         val i = incoming.value ?: return@LaunchedEffect
         val q = i.getIntExtra("quick", 0)
         if (q > 0) quick = q
+        // Desde la pausa: «¿Cómo te sentís?»
+        when (i.getStringExtra("feeling")) {
+            "nervios" -> { stack.clear(); stack.add(Route.PracticeRun("suspiro", 1)) }
+            "aburrido" -> { stack.clear(); quick = 5 }
+            "cansado" -> { stack.clear(); stack.add(Route.FeelingRest) }
+            "evito" -> { stack.clear(); stack.add(Route.Situation("arrancar")) }
+        }
         i.getStringExtra("start_goal")?.let { id -> Store.goal(id)?.let { g -> startMode(g.name, g.id, g.minutes) } }
         if (i.getBooleanExtra("open_activity", false) && Store.active() != null && stack.lastOrNull() != Route.Activity) {
             stack.add(Route.Activity)
@@ -171,6 +179,7 @@ private fun Detail(top: Route, nav: Nav) {
         is Route.Tool -> ToolScreen(top.kind, nav)
         is Route.Situation -> SituacionScreen(top.id, nav)
         is Route.PracticeGroupRoute -> PracticeGroupScreen(top.id, nav)
+        Route.FeelingRest -> DescansoScreen(nav)
         is Route.PracticeRun -> PracticeScreen(top.id, nav, top.minutes)
         Route.Settings -> SettingsScreen(nav)
         Route.VoiceRecord -> VoiceRecordScreen(nav)

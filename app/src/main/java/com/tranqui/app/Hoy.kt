@@ -100,6 +100,8 @@ fun HoyScreen(nav: Nav) {
                 }
             }
 
+            DiaLinea(nav)
+
             if (Stats.missedYesterday() && goals.isNotEmpty()) {
                 TCard(bg = C.ArcillaClara, bordered = false) {
                     SerifText("Ayer no se pudo. Está bien.", 20, color = C.ArcillaOscura)

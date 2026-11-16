@@ -1,5 +1,7 @@
 package com.tranqui.app
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.os.Bundle
@@ -129,6 +131,14 @@ class PauseActivity : ComponentActivity() {
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         )
                         finish()
+                    },
+                    onFeeling = { f ->
+                        Store.logInterception(pkg, "actividad")
+                        startActivity(
+                            Intent(this, MainActivity::class.java).putExtra("feeling", f)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        )
+                        finish()
                     }
                 )
             }
@@ -161,7 +171,8 @@ fun PauseScreen(
     speedDp: Int,
     onNo: () -> Unit,
     onEnter: () -> Unit,
-    onOption: (Int) -> Unit
+    onOption: (Int) -> Unit,
+    onFeeling: (String) -> Unit = {}
 ) {
     var gone by remember { mutableStateOf(false) }
     Box(Modifier.fillMaxSize().background(C.Lino)) {
@@ -178,7 +189,15 @@ fun PauseScreen(
         ) {
             Breathing()
             Small("Ibas a abrir $appName", align = TextAlign.Center)
-            Spacer(Modifier.height(4.dp))
+            // Opcional: un toque y Tranqui te lleva a lo que ayuda con eso. No se guarda.
+            Small("¿Cómo te sentís?", align = TextAlign.Center, color = C.Texto2)
+            Row(
+                Modifier.horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                SENTIRES.forEach { (k, t) -> FeelingChip(t) { onFeeling(k) } }
+            }
+            Spacer(Modifier.height(2.dp))
             OptionRow("1 min · respirar o estirar") { onOption(1) }
             OptionRow("5 min · tu paso de hoy") { onOption(5) }
             OptionRow("15 min · sesión de foco") { onOption(15) }
@@ -192,6 +211,24 @@ fun PauseScreen(
         }
     }
     }
+}
+
+/** Cómo te sentís → a dónde te lleva Tranqui (ver App.kt, extra «feeling»). */
+val SENTIRES = listOf(
+    "nervios" to "Con nervios",
+    "aburrido" to "Aburrido/a",
+    "cansado" to "Cansado/a",
+    "evito" to "Evitando algo"
+)
+
+@Composable
+private fun FeelingChip(text: String, onClick: () -> Unit) {
+    val shape = RoundedCornerShape(20.dp)
+    Box(
+        Modifier.heightIn(min = 40.dp).clip(shape).background(C.SalviaClara).clickable(onClick = onClick)
+            .padding(horizontal = 14.dp),
+        contentAlignment = Alignment.Center
+    ) { Text(text, color = C.Bosque, fontSize = 14.sp) }
 }
 
 @Composable

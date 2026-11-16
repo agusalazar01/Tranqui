@@ -3,6 +3,8 @@
 - «Tu día» en Hoy: una línea suave con lo que tiene hora (tus bloques de tiempo) y una marca de «ahora». Lo que pasó se aclara, lo que está en curso tiene «Empezar ahora», y abajo aparece «Cuando puedas» con lo que no tiene hora. Sin números ni estadísticas.
 - En la pausa, «¿Cómo te sentís?» (opcional, no se guarda): «Con nervios» abre un suspiro cíclico de 1 minuto, «Aburrido/a» te ofrece un paso de 5 minutos, «Cansado/a» te propone descansar de verdad y «Evitando algo» te lleva a los métodos para arrancar.
 - 4 meditaciones guiadas nuevas, escritas en castellano de acá: «Respiración, cuerpo y sonidos», «Estar con lo que pesa» (para la ansiedad), «Escaneo para dormir» y «Benevolencia». Se pueden grabar con tu voz y van con el sonido de fondo. Nueva categoría «Meditar» en Calma.
+- Autohipnosis (en Calma): 6 guiones para completar con tus palabras —Calma ante lo que te preocupa, Tu yo del futuro, Arrancar lo que postergás, Confianza, Un hábito nuevo y Dormir profundo—. Se graban con tu voz. Si cortás antes, igual se hace la cuenta para volver.
+- Fondos nuevos: tambor para trance (4 golpes por segundo), tambor lento, tambor chamánico, tambor grave, y tres de didgeridoo. Grabaciones reales de Freesound (CC0).
 - Se sacó la guía con sonido de viento en las respiraciones: interrumpía más de lo que ayudaba.
 
 # Tranqui 0.5.1

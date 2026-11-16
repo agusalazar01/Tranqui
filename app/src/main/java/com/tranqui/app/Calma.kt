@@ -71,6 +71,15 @@ fun CalmaScreen(nav: Nav, modifier: Modifier = Modifier) {
                 }
             }
         }
+        TCard(onClick = { nav.push(Route.Hipnosis) }, bg = C.SalviaClara, bordered = false) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    SerifText("Autohipnosis", 19)
+                    Small("Guiones para completar con tus palabras y grabar con tu voz")
+                }
+                Chevron()
+            }
+        }
         var todas by rememberSaveable { mutableStateOf(false) }
         TextButton(onClick = { todas = !todas }) {
             Text(if (todas) "Ocultar la lista completa" else "Ver todas (${PRACTICES.size})", color = C.Bosque)
@@ -222,7 +231,13 @@ private val FONDOS = listOf(
     "lluvia-bosque" to "Lluvia",
     "arroyo" to "Arroyo",
     "olas-suaves" to "Olas",
-    "ruido-marron" to "Ruido suave"
+    "ruido-marron" to "Ruido suave",
+    "tambor-trance" to "Tambor (4 por segundo)",
+    "tambor-lento" to "Tambor lento",
+    "tambor-chaman" to "Tambor chamánico",
+    "didgeridoo" to "Didgeridoo",
+    "didgeridoo-dron" to "Didgeridoo grave",
+    "didgeridoo-ritmo" to "Didgeridoo con ritmo"
 )
 
 /** Voz de las prácticas: «Silencio» (solo texto en pantalla) o «Mi voz» (grabada por vos). */
@@ -235,7 +250,9 @@ private fun fondos(ctx: Context): List<Pair<String, String>> {
 
 @Composable
 fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
-    val p = PRACTICES.firstOrNull { it.id == id } ?: PRACTICES.first()
+    val p = practiceById(id)
+    val hipno = id.startsWith("hip_")
+    var salirSuave by remember { mutableStateOf(false) }
     var minutes by remember { mutableIntStateOf(presetMinutes?.takeIf { it in p.options } ?: p.defaultMinutes) }
     var running by remember { mutableStateOf(false) }
     var done by remember { mutableStateOf(false) }
@@ -259,13 +276,18 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
         BackBar(p.name) { nav.pop() }
         when {
             running -> {
-                PracticeRunner(p, minutes, vibrate, voz, fondo) {
+                PracticeRunner(p, minutes, vibrate, voz, fondo, salir = { salirSuave }) {
                     Store.addSession(Session(Store.today(), null, p.name, minutes))
                     running = false
                     done = true
                 }
-                TextButton(onClick = { running = false }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                    Text("Terminar antes", color = C.Texto2)
+                // En la hipnosis no se corta de golpe: se salta a la cuenta para volver.
+                TextButton(
+                    onClick = { if (hipno) salirSuave = true else running = false },
+                    enabled = !salirSuave,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text(if (salirSuave) "Volviendo despacio…" else "Terminar antes", color = C.Texto2)
                 }
             }
             done -> {
@@ -331,7 +353,7 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
 }
 
 @Composable
-private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: String, fondo: String, onDone: () -> Unit) {
+private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: String, fondo: String, salir: () -> Boolean = { false }, onDone: () -> Unit) {
     val ctx = LocalContext.current
     val view = LocalView.current
     // La pantalla no se apaga durante la práctica: si se apagara, la guía se frenaría.
@@ -395,6 +417,7 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
             delay(2000)
             val per = (end - System.currentTimeMillis()).coerceAtLeast(10_000L) / p.steps.size
             for (s in p.steps) {
+                if (salir()) break
                 val stepEnd = System.currentTimeMillis() + per
                 label = s
                 // «…» = pausa: primero se tensa, unos segundos después la voz dice cuándo soltar.
@@ -403,7 +426,7 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
                     audio.sayAndWait(part)
                     if (i < parts.lastIndex) delay(5000)
                 }
-                delay((stepEnd - System.currentTimeMillis()).coerceAtLeast(0))
+                while (System.currentTimeMillis() < stepEnd && !salir()) delay(200)
             }
             breathing.cancel()
         }

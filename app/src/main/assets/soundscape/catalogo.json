@@ -9,6 +9,7 @@
   "Viaje",
   "Cuencos y tonos",
   "Ruido de fondo",
+  "Tambor y didgeridoo",
   "En línea"
  ],
  "sounds": [
@@ -845,6 +846,121 @@
     "url": "https://bigsoundbank.com/UPLOAD/mp3/0212.mp3"
    },
    "mode": "bucle"
+  },
+  {
+   "id": "tambor-trance",
+   "title": "Tambor para trance",
+   "sub": "Parche grave, unos 4 golpes por segundo",
+   "group": "Tambor y didgeridoo",
+   "kind": "fuego",
+   "credit": "Golpes de «Frame drum oneshot RAW», cabled_mess — Freesound, CC0. Ritmo armado en Tranqui.",
+   "featured": false,
+   "source": {
+    "type": "freesound_ritmo",
+    "ids": [
+     345622,
+     345629
+    ],
+    "bpm": 240,
+    "seconds": 150
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "tambor-lento",
+   "title": "Tambor lento",
+   "sub": "Un golpe cada medio segundo, para meditar",
+   "group": "Tambor y didgeridoo",
+   "kind": "fuego",
+   "credit": "Golpes de «Frame drum oneshot RAW», cabled_mess — Freesound, CC0. Ritmo armado en Tranqui.",
+   "featured": false,
+   "source": {
+    "type": "freesound_ritmo",
+    "ids": [
+     345622,
+     345629
+    ],
+    "bpm": 120,
+    "seconds": 150
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "tambor-chaman",
+   "title": "Tambor chamánico",
+   "sub": "Improvisación en un tambor de cuero",
+   "group": "Tambor y didgeridoo",
+   "kind": "fuego",
+   "credit": "«shamanic drum 1», adharca — Freesound, CC0",
+   "featured": false,
+   "source": {
+    "type": "freesound",
+    "id": 275376
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "tambor-grave",
+   "title": "Tambor grave y parejo",
+   "sub": "Un tom grave, como un latido",
+   "group": "Tambor y didgeridoo",
+   "kind": "fuego",
+   "credit": "«Drum beat», esperar — Freesound, CC0",
+   "featured": false,
+   "source": {
+    "type": "freesound",
+    "id": 170804
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "didgeridoo",
+   "title": "Didgeridoo",
+   "sub": "Tocado por Jimmie P. Rodgers",
+   "group": "Tambor y didgeridoo",
+   "kind": "cuenco",
+   "credit": "«Jimmie's Didgeridoo», qubodup (con permiso del intérprete) — Freesound, CC0",
+   "featured": false,
+   "source": {
+    "type": "freesound",
+    "id": 173923
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "didgeridoo-dron",
+   "title": "Didgeridoo grave",
+   "sub": "Una nota larga y continua",
+   "group": "Tambor y didgeridoo",
+   "kind": "cuenco",
+   "credit": "«Didg Drone 7», dylanbigdaddy — Freesound, CC0",
+   "featured": false,
+   "source": {
+    "type": "freesound",
+    "id": 275272
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "didgeridoo-ritmo",
+   "title": "Didgeridoo con ritmo",
+   "sub": "Un patrón de dos notas que se repite",
+   "group": "Tambor y didgeridoo",
+   "kind": "cuenco",
+   "credit": "«104-didgeridoo-riff», GENERALMiDiGUy — Freesound, CC0",
+   "featured": false,
+   "source": {
+    "type": "freesound",
+    "id": 431178
+   },
+   "mode": "bucle",
+   "max": 150
   }
  ]
 }

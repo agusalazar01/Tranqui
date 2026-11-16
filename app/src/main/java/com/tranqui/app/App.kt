@@ -70,6 +70,8 @@ sealed interface Route {
     data class Situation(val id: String) : Route
     data class PracticeGroupRoute(val id: String) : Route
     data object FeelingRest : Route
+    data object Hipnosis : Route
+    data class HipnoEdit(val id: String) : Route
     data class PracticeRun(val id: String, val minutes: Int? = null) : Route
     data object Settings : Route
     data object VoiceRecord : Route
@@ -180,6 +182,8 @@ private fun Detail(top: Route, nav: Nav) {
         is Route.Situation -> SituacionScreen(top.id, nav)
         is Route.PracticeGroupRoute -> PracticeGroupScreen(top.id, nav)
         Route.FeelingRest -> DescansoScreen(nav)
+        Route.Hipnosis -> HipnosisScreen(nav)
+        is Route.HipnoEdit -> HipnoEditScreen(top.id, nav)
         is Route.PracticeRun -> PracticeScreen(top.id, nav, top.minutes)
         Route.Settings -> SettingsScreen(nav)
         Route.VoiceRecord -> VoiceRecordScreen(nav)

@@ -594,7 +594,7 @@ fun RecordVoiceCard(nav: Nav) {
     }
 }
 
-/** Clave de cada frase: nombra el archivo de voz (también la usa tools/preparar_voces.py). */
+/** Clave de cada frase: nombra el archivo de tu grabación. */
 fun voiceKey(text: String): String =
     MessageDigest.getInstance("SHA-1").digest(text.trim().toByteArray(Charsets.UTF_8))
         .joinToString("") { "%02x".format(it) }.take(12)

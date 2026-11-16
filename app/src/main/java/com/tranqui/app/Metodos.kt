@@ -22,9 +22,16 @@ fun MetodosScreen(nav: Nav) {
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 18.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            ScreenTitle("Métodos", "Cada uno dice cuánta evidencia tiene")
+            ScreenTitle("Métodos", "Agrupados por para qué te sirven")
             Spacer(Modifier.height(4.dp))
-            METHODS.forEach { m ->
+            METHOD_GROUPS.forEach { (gid, info) ->
+              val delGrupo = METHODS.filter { it.group == gid }
+              if (delGrupo.isNotEmpty()) {
+                Spacer(Modifier.height(6.dp))
+                SerifText(info.first, 21)
+                Small(info.second)
+              }
+              delGrupo.forEach { m ->
                 TCard(onClick = { nav.push(Route.MethodDetail(m.id)) }) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
@@ -34,7 +41,9 @@ fun MetodosScreen(nav: Nav) {
                         Spacer(Modifier.width(8.dp))
                         Tag(m.tag)
                     }
+                    if (m.action != null && m.action.name in TOOL_ACTIONS) Small("Con herramienta guiada", color = C.Musgo)
                 }
+              }
             }
             Small(
                 "Fuerte: metaanálisis o varios ensayos. Mixta: estudios con resultados distintos. " +
@@ -78,6 +87,22 @@ fun MethodScreen(id: String, nav: Nav) {
             MethodAction.KAIZEN -> PrimaryButton("Empezar 1 minuto") { nav.start("Un minuto de la tarea que evitás", null, 1) }
             MethodAction.SAPO -> PrimaryButton("Elegir el sapo de hoy") { nav.sapo() }
             null -> {}
+            else -> PrimaryButton(
+                when (m.action) {
+                    MethodAction.EISENHOWER -> "Ordenar mis tareas"
+                    MethodAction.IVY -> "Armar mi lista de 6"
+                    MethodAction.UNO35 -> "Armar mi día 1-3-5"
+                    MethodAction.DOSMIN -> "Mi lista de 2 minutos"
+                    MethodAction.VACIAR -> "Vaciar la mente ahora"
+                    MethodAction.PASOS -> "Dividir una tarea"
+                    MethodAction.BLOQUES -> "Planificar mis bloques"
+                    MethodAction.PERDON -> "Hacerlo ahora (3 pasos)"
+                    MethodAction.PLAZO -> "Ponerle fecha a algo"
+                    MethodAction.CIERRE -> "Cerrar el día"
+                    MethodAction.PLACER -> "Asociarlo a un objetivo"
+                    else -> "Usar ahora"
+                }
+            ) { nav.push(Route.Tool(m.action!!.name)) }
         }
         Spacer(Modifier.height(16.dp))
     }
@@ -190,3 +215,6 @@ fun KanbanScreen(nav: Nav) {
         Spacer(Modifier.height(16.dp))
     }
 }
+
+/** Acciones que abren una herramienta guiada propia (Herramientas.kt). */
+val TOOL_ACTIONS = setOf("EISENHOWER", "IVY", "UNO35", "DOSMIN", "VACIAR", "PASOS", "BLOQUES", "PERDON", "PLAZO", "CIERRE", "PLACER")

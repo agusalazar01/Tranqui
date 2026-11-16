@@ -46,14 +46,125 @@ fun quickOptions(size: Int, goals: List<Goal>): List<QuickOption> = when (size) 
     )
 }
 
-enum class MethodAction { NEW_GOAL, WOOP, POMODORO, MICRO, KAIZEN, KANBAN, HANSEI, IKIGAI, SAPO }
+enum class MethodAction {
+    NEW_GOAL, WOOP, POMODORO, MICRO, KAIZEN, KANBAN, HANSEI, IKIGAI, SAPO,
+    // Herramientas guiadas
+    EISENHOWER, IVY, UNO35, DOSMIN, VACIAR, PASOS, BLOQUES, PERDON, PLAZO, CIERRE, PLACER
+}
 
 data class Method(
     val id: String, val name: String, val jp: String?, val tag: String, val short: String,
-    val que: String, val porque: String, val evidencia: String, val pasos: List<String>, val action: MethodAction?
+    val que: String, val porque: String, val evidencia: String, val pasos: List<String>, val action: MethodAction?,
+    val group: String = ""
 )
 
-val METHODS = listOf(
+/** Grupos de métodos según para qué sirven, en el orden en que se muestran. */
+val METHOD_GROUPS = listOf(
+    "arrancar" to ("Para arrancar cuando cuesta" to "Cuando no te sale empezar o venís de un día flojo."),
+    "foco" to ("Para enfocarte" to "Cuando te distraés o te cansás a mitad de camino."),
+    "elegir" to ("Para elegir qué hacer primero" to "Cuando tenés mucho y no sabés por dónde agarrar."),
+    "ordenar" to ("Para ordenar lo pendiente" to "Cuando tenés la cabeza llena de cosas sueltas."),
+    "sostener" to ("Para sostener metas y hábitos" to "Para no abandonar a las dos semanas."),
+    "revisar" to ("Para revisar y mejorar" to "Para aprender de cómo te fue, sin castigarte.")
+)
+
+private val GRUPO_DE = mapOf(
+    "minimos" to "arrancar", "kaizen" to "arrancar", "dosmin" to "arrancar", "sapo" to "arrancar",
+    "perdon" to "arrancar", "placer" to "arrancar",
+    "pomodoro" to "foco", "micro" to "foco", "bloques" to "foco",
+    "eisenhower" to "elegir", "ivylee" to "elegir", "unotrescinco" to "elegir",
+    "vaciar" to "ordenar", "pasos" to "ordenar", "kanban" to "ordenar",
+    "sientonces" to "sostener", "woop" to "sostener", "plazo" to "sostener", "ikigai" to "sostener", "wabisabi" to "sostener",
+    "cierre" to "revisar", "hansei" to "revisar"
+)
+
+val METHODS: List<Method> by lazy {
+    (BASE_METHODS + NEW_METHODS).map { m ->
+        val accion = when (m.id) {
+            "placer" -> MethodAction.PLACER
+            "dosmin" -> MethodAction.DOSMIN
+            else -> m.action
+        }
+        m.copy(group = GRUPO_DE[m.id] ?: "sostener", action = accion)
+    }
+}
+
+private val NEW_METHODS = listOf(
+    Method(
+        "eisenhower", "Urgente o importante", null, "Mixta", "Separar lo que apura de lo que importa",
+        "Ordenás cada tarea según dos preguntas: ¿es urgente? ¿es importante? Lo importante y urgente se hace ya; lo importante sin apuro se agenda; lo urgente que no importa se acota; lo demás se suelta.",
+        "Sin darnos cuenta elegimos lo que tiene fecha cerca aunque valga menos. Mirar las tareas en cuatro cuadros hace visible lo importante que venís postergando.",
+        "En cinco experimentos, la gente eligió tareas urgentes de menor valor antes que tareas importantes de mayor valor, aun teniendo tiempo de sobra («efecto de la mera urgencia», Zhu, Yang y Hsee, 2018). Recordar qué gana cada opción en el momento de elegir redujo ese sesgo. La matriz en sí no fue puesta a prueba.",
+        listOf("Anotá tus pendientes.", "Ubicá cada uno en un cuadro.", "Antes de decidir, mirá qué ganás con cada tarea.", "Empezá por «Hacer ahora»; agendá lo importante sin apuro."),
+        MethodAction.EISENHOWER
+    ),
+    Method(
+        "ivylee", "Método Ivy Lee", null, "Tradición", "Seis tareas, en orden, una por vez",
+        "Al terminar el día anotás las 6 tareas más importantes para mañana, en orden. Al día siguiente hacés la primera hasta terminarla, después la segunda. Lo que no termines pasa a la lista del día siguiente.",
+        "Decidís el orden la noche anterior, con la cabeza fría, y a la mañana no perdés energía eligiendo. Hacer una sola por vez evita saltar de tarea en tarea.",
+        "Método de 1918 sin estudios propios. Coincide con lo que sí está estudiado: planificar con anticipación y concretar el próximo paso.",
+        listOf("Anotá hasta 6 tareas.", "Ordenalas por importancia.", "Hacé solo la primera hasta terminarla.", "Lo que quede, pasa a mañana."),
+        MethodAction.IVY
+    ),
+    Method(
+        "unotrescinco", "Regla 1-3-5", null, "Tradición", "Un día realista: 1 grande, 3 medianas, 5 chicas",
+        "Cada día elegís 1 tarea grande, 3 medianas y 5 chicas. Nada más.",
+        "Pone un límite a la lista: si querés agregar algo, tenés que sacar otra cosa. Así el día deja de ser imposible antes de empezar.",
+        "Sin estudios propios. Ayuda contra la «falacia de la planificación»: solemos subestimar cuánto llevan las tareas.",
+        listOf("Elegí la tarea grande del día.", "Sumá 3 medianas y 5 chicas.", "Tachá a medida que avanzás."),
+        MethodAction.UNO35
+    ),
+    Method(
+        "vaciar", "Vaciar la mente", null, "Mixta", "Sacar todo de la cabeza y decidir qué hacer con cada cosa",
+        "Anotás todo lo que te da vueltas, sin ordenar. Después lo procesás de a una cosa: ¿lo hago ya, es para hoy, va al tablero, o es para algún día?",
+        "Lo pendiente sigue ocupando la cabeza aunque no lo estés haciendo. Anotarlo con un plan concreto la libera.",
+        "En varios experimentos, las metas sin terminar generaron pensamientos intrusivos y peor rendimiento en otras tareas; armar un plan específico para ellas eliminó esa interferencia, aun sin haberlas cumplido (Masicampo y Baumeister, 2011). La versión completa viene de «Getting Things Done» (David Allen), sin estudios propios.",
+        listOf("Anotá todo lo que tengas en la cabeza.", "Tomá cada cosa y decidí: ya, hoy, tablero, algún día o borrar.", "Cuando la lista queda vacía, listo."),
+        MethodAction.VACIAR
+    ),
+    Method(
+        "pasos", "Dividir en pasos", null, "Tradición", "Que el próximo paso sea obvio y corto",
+        "Una tarea grande y vaga («ordenar la casa») se transforma en pasos concretos de menos de 10 minutos («vaciar la mesa del living»).",
+        "Lo que paraliza suele ser no saber por dónde empezar. Un primer paso físico y corto baja la resistencia.",
+        "Sin estudios del método en sí. Las metas concretas y específicas funcionan mejor que las vagas en la investigación sobre metas e intenciones.",
+        listOf("Escribí la tarea grande.", "Preguntate: ¿cuál es la primera acción física?", "Que cada paso dure menos de 10 minutos.", "Empezá el primero ahora."),
+        MethodAction.PASOS
+    ),
+    Method(
+        "bloques", "Bloques de tiempo", null, "Mixta", "Darle a cada tarea su lugar en el día",
+        "En vez de una lista suelta, le das a cada tarea un horario: «de 10 a 10:45, informe». Tranqui te avisa cuando empieza cada bloque.",
+        "Una tarea con hora deja de competir con todo lo demás. Además ves si el día entra o no.",
+        "Un metaanálisis de 158 estudios encontró que manejar el tiempo se relaciona moderadamente con el rendimiento y más todavía con el bienestar (Aeon, Faber y Panaccio, 2021). No compara técnicas puntuales: los bloques son una forma de planificar.",
+        listOf("Elegí 2 o 3 cosas importantes.", "Dale a cada una un horario y una duración.", "Sumá un margen: casi todo lleva más de lo que pensamos.", "Cuando suena el aviso, empezá."),
+        MethodAction.BLOQUES
+    ),
+    Method(
+        "perdon", "Perdonarte y volver", null, "Mixta", "Soltar la culpa para poder retomar",
+        "Cuando postergaste algo, reconocés lo que pasó sin castigarte, te hablás como a un amigo y elegís un paso chico para volver.",
+        "La culpa hace que la tarea se sienta todavía peor, y eso empuja a seguir evitándola. Soltarla saca ese peso.",
+        "En 119 estudiantes, los que más habían postergado y se perdonaron por eso postergaron menos antes del siguiente examen, en parte porque sintieron menos emociones negativas (Wohl, Pychyl y Bennett, 2010). Es un estudio observacional, no un ensayo.",
+        listOf("Nombrá lo que pasó, sin adornarlo.", "Decite algo amable, como a un amigo.", "Elegí un paso de 2 minutos y hacelo ahora."),
+        MethodAction.PERDON
+    ),
+    Method(
+        "plazo", "Tu propia fecha límite", null, "Mixta", "Ponerle fecha a lo que no la tiene",
+        "Lo importante sin fecha se posterga para siempre. Le ponés una fecha concreta y Tranqui te avisa el día anterior y el mismo día.",
+        "Una fecha transforma «algún día» en «esta semana», y le da a lo importante la urgencia que le falta.",
+        "Un estudio clásico encontró que la gente se pone plazos a sí misma y que eso ayuda en parte (Ariely y Wertenbroch, 2002), pero una réplica de 2025 no encontró el mismo efecto. Es útil como recordatorio, no como garantía.",
+        listOf("Elegí algo importante sin fecha.", "Poné una fecha realista.", "Si es grande, dividilo en pasos con sus propias fechas."),
+        MethodAction.PLAZO
+    ),
+    Method(
+        "cierre", "Cierre del día", null, "Tradición", "Terminar el día con la cabeza tranquila",
+        "Al final del día repasás lo que hiciste, anotás lo que quedó pendiente y elegís las 3 primeras cosas de mañana. Después cerrás con una frase: «listo por hoy».",
+        "Lo pendiente con plan deja de dar vueltas a la noche, y mañana arrancás sin decidir de cero.",
+        "El ritual viene de Cal Newport, sin estudios propios. Se apoya en que planificar lo pendiente reduce los pensamientos intrusivos (Masicampo y Baumeister, 2011).",
+        listOf("Mirá lo que hiciste hoy.", "Anotá lo que quedó pendiente.", "Elegí las 3 primeras de mañana.", "Decí «listo por hoy» y cortá."),
+        MethodAction.CIERRE
+    )
+)
+
+private val BASE_METHODS = listOf(
     Method(
         "sientonces", "Si pasa X, hago Y", null, "Fuerte", "Decidí de antemano cuándo y dónde",
         "Un plan concreto que une una situación con una acción: «Después de cenar, leo 5 minutos».",

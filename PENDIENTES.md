@@ -19,7 +19,11 @@
 ## Listo para la próxima versión (sin publicar)
 
 - [x] Sin sonidos sintéticos; escena de Calma quieta.
-- [x] Prácticas más suaves: voz Kokoro, música de fondo que baja con la voz, menos frases, textos nuevos.
+- [x] Girar la pantalla ya no corta el sonido ni vuelve atrás.
+- [x] El botón «atrás» del celular vuelve a la pantalla anterior (y cierra la biblioteca) en vez de salir.
+- [x] Sonidos «En línea»: se escuchan por internet sin guardarse en el celular.
+- [x] Métodos agrupados por para qué sirven, con 9 métodos nuevos y herramientas guiadas.
+- [x] Prácticas más suaves: sin voces de IA, opciones «Silencio» o «Mi voz», sonido de fondo que baja con la voz, menos frases, textos nuevos.
 
 - [x] Biblioteca de sonidos con más tipos (hogar, viaje, música suave…) y mejor calidad.
 - [x] Grabar la voz propia para las meditaciones y poder incluirla para todos.

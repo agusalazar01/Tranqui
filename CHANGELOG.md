@@ -2,8 +2,15 @@
 
 - Biblioteca de sonidos: 40 sonidos en 9 grupos (agua, lluvia y tormenta, bosque y campo, noche, fuego, hogar, viaje, cuencos y ruidos). En Calma quedan 8 destacados y el botón «Explorar la biblioteca».
 - Calidad de audio: volumen igualado sin compresión, empalmes de 6 s, Opus 96 kbps estéreo a 48 kHz; BigSoundBank en formato sin pérdida cuando se puede.
-- «Grabar mi voz» (en Calma, en cada práctica y en Ajustes): cada frase de las prácticas se graba en el momento; «Mi voz» guía las meditaciones. Se puede exportar como ZIP y subirla a `voces/` para que quede en la app para todos.
+- Prácticas: dos opciones de voz, «Silencio» y «Mi voz». Si elegís «Mi voz» y te faltan frases, te lleva a grabarlas: cada frase aparece en pantalla, la grabás y pasa sola a la siguiente.
+- «Grabar mi voz» (en Calma, en cada práctica y en Ajustes). Se puede exportar como ZIP y subirla a `voces/` para que quede en la app para todos.
 
+- Sonidos «En línea»: 20 sonidos más de BigSoundBank que se escuchan por internet y no ocupan lugar en el celular.
+- Girar la pantalla ya no corta el sonido ni te manda atrás.
+- El botón «atrás» del celular vuelve a la pantalla anterior; en las pestañas vuelve a Hoy, y en la biblioteca la cierra.
+- Métodos agrupados por para qué sirven: arrancar cuando cuesta, enfocarte, elegir qué hacer primero, ordenar lo pendiente, sostener metas y revisar.
+- 9 métodos nuevos con herramienta guiada: Urgente o importante (Eisenhower), Ivy Lee, 1-3-5, Vaciar la mente, Dividir en pasos, Bloques de tiempo con aviso, Perdonarte y volver, Tu propia fecha límite (con avisos) y Cierre del día. La regla de los 2 minutos y Placer asociado también tienen herramienta.
+- Cada herramienta te lleva a la acción: botón «Empezar» con temporizador, una tarea por vez, progreso y pasos que alimentan el tablero.
 - Calma: se sacaron los sonidos sintéticos de prueba.
 - Calma: la escena de arriba ya no está animada (se trababa); cambia de color con cada sonido.
 - Prácticas guiadas más suaves:

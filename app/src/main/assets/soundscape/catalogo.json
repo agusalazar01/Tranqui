@@ -8,7 +8,8 @@
   "Hogar",
   "Viaje",
   "Cuencos y tonos",
-  "Ruido de fondo"
+  "Ruido de fondo",
+  "En línea"
  ],
  "sounds": [
   {
@@ -562,6 +563,286 @@
    "featured": false,
    "source": {
     "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-olas-frente",
+   "title": "Olas frente al mar",
+   "sub": "Orilla del Canal de la Mancha",
+   "group": "En línea",
+   "kind": "agua",
+   "credit": "#1046, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/1046.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-olas-espaldas",
+   "title": "Olas de espaldas al mar",
+   "sub": "La playa detrás tuyo",
+   "group": "En línea",
+   "kind": "agua",
+   "credit": "#1047, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/1047.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-olas-arena",
+   "title": "Olas pequeñas y arena",
+   "sub": "A dos o tres metros",
+   "group": "En línea",
+   "kind": "agua",
+   "credit": "#1446, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/1446.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-espuma",
+   "title": "Espuma en la orilla",
+   "sub": "Muy cerca del agua",
+   "group": "En línea",
+   "kind": "agua",
+   "credit": "#1447, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/1447.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-playa-chica",
+   "title": "Playa de olas chicas",
+   "sub": "Remolinos y mar de fondo",
+   "group": "En línea",
+   "kind": "agua",
+   "credit": "#0265, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/0265.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-olas-moderadas",
+   "title": "Mar con olas moderadas",
+   "sub": "Rumor del mar",
+   "group": "En línea",
+   "kind": "agua",
+   "credit": "#0266, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/0266.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-mar-gaviotas",
+   "title": "Mar y aves",
+   "sub": "Olas y gaviotas",
+   "group": "En línea",
+   "kind": "agua",
+   "credit": "#0267, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/0267.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-dellec",
+   "title": "Playa de Dellec",
+   "sub": "Bretaña, fácil de repetir",
+   "group": "En línea",
+   "kind": "agua",
+   "credit": "#2565, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/2565.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-mar-lejos",
+   "title": "Mar a lo lejos",
+   "sub": "Olas a diez metros",
+   "group": "En línea",
+   "kind": "agua",
+   "credit": "#2567, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/2567.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-tormenta-auto",
+   "title": "Tormenta en el parabrisas",
+   "sub": "Lluvia y truenos",
+   "group": "En línea",
+   "kind": "lluvia",
+   "credit": "#1296, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/1296.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-ranas-2",
+   "title": "Ranas en el estanque",
+   "sub": "Con una cascada de fondo",
+   "group": "En línea",
+   "kind": "noche",
+   "credit": "#0997, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/0997.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-chicharra",
+   "title": "Chicharra",
+   "sub": "Canto largo de verano",
+   "group": "En línea",
+   "kind": "bosque",
+   "credit": "#2399, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/2399.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-bosque-frances",
+   "title": "Bosque",
+   "sub": "Pájaros y hojas",
+   "group": "En línea",
+   "kind": "bosque",
+   "credit": "#0100, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/0100.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-gato-2",
+   "title": "Gato ronroneando II",
+   "sub": "Bien de cerca",
+   "group": "En línea",
+   "kind": "hogar",
+   "credit": "#0981, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/0981.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-secador",
+   "title": "Secador de pelo",
+   "sub": "Un ruido parejo",
+   "group": "En línea",
+   "kind": "hogar",
+   "credit": "#2680, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/2680.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-ventilador",
+   "title": "Ventilador de computadora",
+   "sub": "Zumbido suave",
+   "group": "En línea",
+   "kind": "hogar",
+   "credit": "#0126, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/0126.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-tren-rapido",
+   "title": "Vagón de tren rápido",
+   "sub": "Viaje largo",
+   "group": "En línea",
+   "kind": "viaje",
+   "credit": "#0635, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/0635.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-metro-antiguo",
+   "title": "Metro antiguo",
+   "sub": "Interior en marcha",
+   "group": "En línea",
+   "kind": "viaje",
+   "credit": "#3040, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/3040.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-metro-moderno",
+   "title": "Metro moderno",
+   "sub": "Interior en marcha",
+   "group": "En línea",
+   "kind": "viaje",
+   "credit": "#3042, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/3042.mp3"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "web-vagon-antiguo",
+   "title": "Vagón antiguo",
+   "sub": "Tren de época",
+   "group": "En línea",
+   "kind": "viaje",
+   "credit": "#0212, BigSoundBank, Joseph Sardin, CC0 (se escucha por internet)",
+   "featured": false,
+   "source": {
+    "type": "online",
+    "url": "https://bigsoundbank.com/UPLOAD/mp3/0212.mp3"
    },
    "mode": "bucle"
   }

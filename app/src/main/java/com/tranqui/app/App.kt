@@ -66,6 +66,7 @@ sealed interface Route {
     data class MethodDetail(val id: String) : Route
     data class Notes(val kind: String) : Route
     data object Kanban : Route
+    data class Tool(val kind: String) : Route
     data class PracticeRun(val id: String, val minutes: Int? = null) : Route
     data object Settings : Route
     data object VoiceRecord : Route
@@ -119,7 +120,10 @@ fun App(incoming: MutableState<Intent?>) {
         incoming.value = null
     }
 
-    BackHandler(enabled = stack.isNotEmpty()) { nav.pop() }
+    // Atrás: primero cierra la pantalla abierta, después vuelve a Hoy; recién en Hoy sale de la app.
+    BackHandler(enabled = stack.isNotEmpty() || tab != 0) {
+        if (stack.isNotEmpty()) nav.pop() else tab = 0
+    }
 
     Box(Modifier.fillMaxSize().background(C.Lino)) {
         when (val top = stack.lastOrNull()) {
@@ -162,6 +166,7 @@ private fun Detail(top: Route, nav: Nav) {
         is Route.MethodDetail -> MethodScreen(top.id, nav)
         is Route.Notes -> NotesScreen(top.kind, nav)
         Route.Kanban -> KanbanScreen(nav)
+        is Route.Tool -> ToolScreen(top.kind, nav)
         is Route.PracticeRun -> PracticeScreen(top.id, nav, top.minutes)
         Route.Settings -> SettingsScreen(nav)
         Route.VoiceRecord -> VoiceRecordScreen(nav)

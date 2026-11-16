@@ -95,8 +95,10 @@ class SoundPlaybackService : MediaSessionService() {
     }
 
     private fun playSound(requested: String) {
-        // Todas las grabaciones están dentro de la app: suenan sin internet.
-        val id = if (assetExists(requested)) requested else DEFAULT
+        // Las grabaciones de la app suenan sin internet. Las de «En línea» se escuchan por
+        // internet y no se guardan: ExoPlayer las lee directo, sin caché en disco.
+        val online = onlineUrl(this, requested)
+        val id = if (assetExists(requested) || online != null) requested else DEFAULT
         cancelTimer()
         val timerMinutes = prefs.getInt(KEY_TIMER, 0)
         prefs.edit().putString(KEY_SELECTED, id).remove(KEY_ERROR).apply()
@@ -105,7 +107,8 @@ class SoundPlaybackService : MediaSessionService() {
             .setArtist("Tranqui · Paisajes sonoros")
             .setExtras(android.os.Bundle().apply { putString("tranqui_sound_id", id) })
             .build()
-        val item = MediaItem.Builder().setUri("asset:///soundscape/sounds/$id.ogg").setMediaMetadata(metadata).build()
+        val uri = online ?: "asset:///soundscape/sounds/$id.ogg"
+        val item = MediaItem.Builder().setUri(uri).setMediaMetadata(metadata).build()
         player.repeatMode = Player.REPEAT_MODE_ONE
         player.setMediaItem(item)
         player.prepare()
@@ -166,15 +169,35 @@ class SoundPlaybackService : MediaSessionService() {
         fun pitchFactor(semis: Int): Float = Math.pow(2.0, semis / 12.0).toFloat()
 
         private var titles: Map<String, String>? = null
+        private var urls: Map<String, String>? = null
+
+        private fun loadCatalog(ctx: android.content.Context) {
+            if (titles != null) return
+            runCatching {
+                val json = org.json.JSONObject(ctx.assets.open("soundscape/catalogo.json").bufferedReader().use { it.readText() })
+                val arr = json.getJSONArray("sounds")
+                val t = mutableMapOf<String, String>()
+                val u = mutableMapOf<String, String>()
+                for (i in 0 until arr.length()) {
+                    val s = arr.getJSONObject(i)
+                    t[s.getString("id")] = s.getString("title")
+                    val src = s.optJSONObject("source")
+                    if (src != null && src.optString("type") == "online") u[s.getString("id")] = src.getString("url")
+                }
+                titles = t; urls = u
+            }.onFailure { titles = emptyMap(); urls = emptyMap() }
+        }
 
         /** Nombre para la notificación, tomado del catálogo de sonidos. */
         fun titleOf(ctx: android.content.Context, id: String): String {
-            val t = titles ?: runCatching {
-                val json = org.json.JSONObject(ctx.assets.open("soundscape/catalogo.json").bufferedReader().use { it.readText() })
-                val arr = json.getJSONArray("sounds")
-                (0 until arr.length()).associate { i -> arr.getJSONObject(i).let { it.getString("id") to it.getString("title") } }
-            }.getOrDefault(emptyMap()).also { titles = it }
-            return t[id] ?: id.replace('-', ' ').replaceFirstChar { it.uppercase() }
+            loadCatalog(ctx)
+            return titles?.get(id) ?: id.replace('-', ' ').replaceFirstChar { it.uppercase() }
+        }
+
+        /** Dirección web de un sonido «En línea», o null si está dentro de la app. */
+        fun onlineUrl(ctx: android.content.Context, id: String): String? {
+            loadCatalog(ctx)
+            return urls?.get(id)
         }
     }
 }

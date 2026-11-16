@@ -81,6 +81,26 @@ data class Note(val day: Long, val fields: List<Pair<String, String>>)
 
 data class KTask(val id: String, val text: String, val col: Int)
 
+/**
+ * Un elemento de las herramientas de métodos (Ivy Lee, 1-3-5, vaciar la mente, bloques…).
+ * [slot] depende de la herramienta: cuadro de la matriz, tamaño en 1-3-5, etc.
+ * [time] son minutos desde la medianoche (-1 = sin hora); [due] es un día (epochDay, -1 = sin fecha).
+ */
+data class Item(
+    val id: String, val text: String, val slot: String = "", val done: Boolean = false,
+    val day: Long = 0, val time: Int = -1, val minutes: Int = 0, val due: Long = -1, val order: Int = 0
+) {
+    fun json(): JSONObject = JSONObject().put("id", id).put("t", text).put("s", slot).put("d", done)
+        .put("day", day).put("time", time).put("min", minutes).put("due", due).put("o", order)
+
+    companion object {
+        fun from(o: JSONObject) = Item(
+            o.getString("id"), o.optString("t"), o.optString("s"), o.optBoolean("d"),
+            o.optLong("day"), o.optInt("time", -1), o.optInt("min"), o.optLong("due", -1), o.optInt("o")
+        )
+    }
+}
+
 /** Todo se guarda en el teléfono, sin cuentas ni internet. */
 object Store {
     private lateinit var p: SharedPreferences
@@ -152,7 +172,7 @@ object Store {
 
     /** Voz de las prácticas: "mia", una voz incluida o "" (sin voz). */
     var practiceVoice: String
-        get() = p.getString("practice_voice", "mia") ?: "mia"
+        get() = p.getString("practice_voice", "") ?: ""
         set(v) {
             p.edit().putString("practice_voice", v).apply()
         }
@@ -215,6 +235,9 @@ object Store {
     }
 
     // Kanban
+    fun items(kind: String): List<Item> = arr("items_$kind").map { Item.from(it) }
+    fun saveItems(kind: String, list: List<Item>) = putArr("items_$kind", list.map { it.json() })
+
     fun tasks(): List<KTask> = arr("kanban").map { KTask(it.getString("id"), it.getString("t"), it.getInt("c")) }
     fun saveTasks(list: List<KTask>) = putArr("kanban", list.map { JSONObject().put("id", it.id).put("t", it.text).put("c", it.col) })
 

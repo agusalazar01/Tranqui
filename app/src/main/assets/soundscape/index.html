@@ -66,7 +66,8 @@ summary{font-size:12px;color:var(--bosque);cursor:pointer;min-height:32px}
  <div class="actions"><button id="play" class="btn play">Escuchar</button><button id="timer" class="btn soft">Sin temporizador</button></div>
 </section>
 <div id="home"><div class="cat">Para empezar</div><div class="grid" id="featured"></div>
-<button class="explore" id="openLib"><span>Explorar la biblioteca<small id="libCount">Agua, lluvia, campo, noche, fuego, hogar, viaje y ruidos</small></span><span aria-hidden="true">›</span></button></div>
+<button class="explore" id="openLib"><span>Explorar la biblioteca<small id="libCount">Agua, lluvia, campo, noche, fuego, hogar, viaje y ruidos</small></span><span aria-hidden="true">›</span></button>
+<button class="explore" id="openOnline" style="background:#E3E6D8;color:#344C40"><span>Más sonidos en línea<small>Se escuchan por internet y no ocupan lugar</small></span><span aria-hidden="true">›</span></button></div>
 <div id="library" class="hidden"><div class="libhead"><button class="back" id="closeLib" aria-label="Volver">‹</button><div class="libtitle">Biblioteca de sonidos</div></div>
 <div class="chips" id="chips"></div><div id="catalog"></div></div>
 <p id="note" role="status">Grabaciones reales en alta calidad, incluidas en la app: funcionan sin internet. Mejor con auriculares.</p>
@@ -95,30 +96,36 @@ const files=(nativeCall('available')||'').split(',').filter(Boolean);
 let CAT={groups:[],sounds:[]};
 try{const r=new XMLHttpRequest();r.open('GET','catalogo.json',false);r.send();CAT=JSON.parse(r.responseText)}catch(e){}
 const INFO={};
-CAT.sounds.forEach(x=>{if(!files.length||files.includes(x.id))INFO[x.id]={title:x.title,sub:x.sub,kind:x.kind,src:x.credit,group:x.group,featured:x.featured}});
+// Los de «En línea» no están en el teléfono: se escuchan por internet y no se guardan.
+CAT.sounds.forEach(x=>{const online=x.source&&x.source.type==='online';if(online||!files.length||files.includes(x.id))INFO[x.id]={title:x.title,sub:x.sub,kind:x.kind,src:x.credit,group:x.group,featured:x.featured,online}});
 let selected=INFO.arroyo?'arroyo':Object.keys(INFO)[0],playing=false,timerMin=0,volume=62,pitch=0,group='';
 function card(id){const d=INFO[id],b=document.createElement('button');b.className='sound';b.dataset.id=id;
- b.innerHTML='<span class="symbol"><svg viewBox="0 0 20 20" aria-hidden="true">'+(ICON[d.kind]||ICON.ruido)+'</svg></span><span><strong>'+d.title+'</strong><small>'+d.sub+'</small></span>';
+ b.innerHTML='<span class="symbol"><svg viewBox="0 0 20 20" aria-hidden="true">'+(ICON[d.kind]||ICON.ruido)+'</svg></span><span><strong>'+d.title+'</strong><small>'+(d.online?'En línea · ':'')+d.sub+'</small></span>';
  b.addEventListener('click',()=>{selected=id;nativeCall('select',id);if(playing)nativeCall('play',id);render()});return b}
 const featured=$('featured');Object.keys(INFO).filter(id=>INFO[id].featured).forEach(id=>featured.appendChild(card(id)));
-$('libCount').textContent=Object.keys(INFO).length+' sonidos: agua, lluvia, campo, noche, fuego, hogar, viaje y ruidos';
+$('libCount').textContent=Object.keys(INFO).filter(k=>!INFO[k].online).length+' sonidos: agua, lluvia, campo, noche, fuego, hogar, viaje y ruidos';
 function buildLibrary(){const cat=$('catalog');cat.innerHTML='';
  CAT.groups.forEach(g=>{if(group&&g!==group)return;const ids=Object.keys(INFO).filter(id=>INFO[id].group===g);if(!ids.length)return;
   const h=document.createElement('div');h.className='cat';h.textContent=g;cat.appendChild(h);
+  if(g==='En línea'){const n=document.createElement('p');n.id='onlineNote';n.style.cssText='font-size:11px;color:#68766A;margin:0 4px 8px;line-height:1.4';n.textContent='Necesitan internet y no se guardan en el teléfono. Pueden tardar un momento en empezar.';cat.appendChild(n)}
   const grid=document.createElement('div');grid.className='grid';ids.forEach(id=>grid.appendChild(card(id)));cat.appendChild(grid)});
  render();setTimeout(report,50)}
 const chips=$('chips');['',...CAT.groups].forEach(g=>{if(g&&!Object.values(INFO).some(d=>d.group===g))return;
  const c=document.createElement('button');c.className='chip'+(g===''?' on':'');c.textContent=g||'Todos';
  c.addEventListener('click',()=>{group=g;chips.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===c));buildLibrary()});chips.appendChild(c)});
-$('openLib').addEventListener('click',()=>{$('home').classList.add('hidden');$('library').classList.remove('hidden');buildLibrary();nativeCall('scrollTop')});
-$('closeLib').addEventListener('click',()=>{$('library').classList.add('hidden');$('home').classList.remove('hidden');render();setTimeout(report,50)});
+function openLibrary(){$('home').classList.add('hidden');$('library').classList.remove('hidden');buildLibrary();nativeCall('libraryOpen',true)}
+function closeLibrary(){$('library').classList.add('hidden');$('home').classList.remove('hidden');render();setTimeout(report,50);nativeCall('libraryOpen',false)}
+window.closeLibrary=closeLibrary;
+$('openLib').addEventListener('click',()=>{group='';chips.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x.textContent==='Todos'));openLibrary()});
+$('openOnline').addEventListener('click',()=>{group='En línea';chips.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x.textContent==='En línea'));openLibrary()});
+$('closeLib').addEventListener('click',closeLibrary);
 $('credits').innerHTML='Grabaciones de dominio público (CC0) de Freesound y BigSoundBank. Tranqui las recortó, igualó el volumen sin comprimir y empalmó para que suenen en bucle.<br><br>'+
  Object.values(INFO).map(i=>'<b>'+i.title+'</b>: '+i.src).join('<br>');
 function sync(){const p=nativeCall('isPlaying');if(p!==null)playing=!!p;const s=nativeCall('currentSound');if(s&&INFO[s])selected=s;
  const v=nativeCall('currentVolume');if(typeof v==='number'){volume=Math.round(v*100);$('vol').value=volume;$('volumeValue').textContent=volume+'%'}
  const t=nativeCall('currentTimer');if(typeof t==='number')timerMin=t;
  const pt=nativeCall('currentPitch');if(typeof pt==='number'){pitch=pt;$('pitch').value=pitch;showPitch()}
- const err=nativeCall('lastError');if(err)$('note').textContent='No se pudo reproducir el sonido ('+err+').';render()}
+ const err=nativeCall('lastError');if(err)$('note').textContent=/NETWORK|IO_/.test(err)?'Sin conexión: los sonidos en línea necesitan internet.':'No se pudo reproducir el sonido. Probá con otro.';render()}
 function showPitch(){$('pitchValue').textContent=(pitch>0?'+':pitch<0?'−':'')+Math.abs(pitch)}
 let painted='';function render(){const d=INFO[selected];if(!d)return;if(painted!==selected){try{paint();painted=selected}catch(e){}}$('sceneTitle').textContent=d.title;$('sceneSub').textContent=d.sub;$('currentLabel').textContent=d.title;
  $('play').textContent=playing?'Pausar':'Escuchar';$('timer').textContent=timerMin?'Apagar en '+timerMin+' min':'Sin temporizador';

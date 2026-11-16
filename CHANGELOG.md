@@ -1,4 +1,4 @@
-# Próxima versión (sin publicar)
+# Tranqui 0.5.0
 
 - Biblioteca de sonidos: 40 sonidos en 9 grupos (agua, lluvia y tormenta, bosque y campo, noche, fuego, hogar, viaje, cuencos y ruidos). En Calma quedan 8 destacados y el botón «Explorar la biblioteca».
 - Calidad de audio: volumen igualado sin compresión, empalmes de 6 s, Opus 96 kbps estéreo a 48 kHz; BigSoundBank en formato sin pérdida cuando se puede.

@@ -41,7 +41,7 @@ import java.util.zip.ZipOutputStream
 fun voicePhrases(): List<String> {
     val textos = mutableListOf(VOZ_INICIO_RESPIRAR, VOZ_INICIO_GUIA, VOZ_SEGUI, VOZ_CIERRE)
     PRACTICES.forEach { p -> p.allPhases.mapNotNullTo(textos) { it.say } }
-    PRACTICES.forEach { p -> textos += p.steps }
+    PRACTICES.forEach { p -> textos += p.steps; if (p.cierre.isNotEmpty()) textos += p.cierre }
     return textos.flatMap { t -> t.split("…").map { it.trim() } }.filter { it.isNotEmpty() }.distinct()
 }
 

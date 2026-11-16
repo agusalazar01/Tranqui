@@ -409,7 +409,7 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
         }
         clock.cancel()
         label = "Muy bien"
-        VOZ_CIERRE.split("…").map { it.trim() }.filter { it.isNotEmpty() }.forEach {
+        p.cierre.ifEmpty { VOZ_CIERRE }.split("…").map { it.trim() }.filter { it.isNotEmpty() }.forEach {
             audio.sayAndWait(it)
             delay(1500)
         }

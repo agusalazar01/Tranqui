@@ -355,7 +355,9 @@ data class Practice(
     val ritmo: String = "",
     /** Si no está vacío, el ritmo cambia por tramos a lo largo de la práctica (se alarga la exhalación). */
     val stages: List<List<Phase>> = emptyList(),
-    val cuidado: String? = null
+    val cuidado: String? = null,
+    /** Frase final propia (por ejemplo, para dormir no se dice «volvé»). Vacío = cierre común. */
+    val cierre: String = ""
 ) {
     /** Las fases que tocan según cuánto de la práctica ya pasó (0 a 1). */
     fun phasesAt(fraction: Float): List<Phase> =
@@ -374,7 +376,7 @@ val PRACTICE_GROUPS = listOf(
         "ansiedad", "Bajar la ansiedad ahora", "Nervios, enojo, un mal momento",
         "suspiro",
         "Fue la que más mejoró el ánimo en un ensayo que comparó varias respiraciones con meditación. La exhalación larga es lo que más calma, y con 1 o 2 suspiros ya se nota.",
-        listOf("exhala", "zumbido", "caja")
+        listOf("dificil", "exhala", "zumbido", "caja")
     ),
     PracticeGroup(
         "panico", "Si sentís pánico o te falta el aire", "El corazón acelerado, sensación de ahogo",
@@ -386,13 +388,13 @@ val PRACTICE_GROUPS = listOf(
         "dormir", "Para dormir", "En la cama, antes de apagar la luz",
         "dormir",
         "Respirar lento unos 20 minutos antes de dormir acortó el tiempo para dormirse en un estudio con personas con insomnio. Esta va alargando la exhalación de a poco, sin que tengas que contar.",
-        listOf("478", "relajacion", "zumbido")
+        listOf("escaneo", "478", "relajacion", "zumbido")
     ),
     PracticeGroup(
         "estres", "Estrés del día a día", "Un hábito de 5 a 10 minutos",
         "coherente",
         "Respirar unas 6 veces por minuto es lo que más estudios tiene sobre el corazón y el sistema que calma el cuerpo. Un ensayo grande no la encontró mejor que respirar lento con atención: lo que más importa es hacerla seguido.",
-        listOf("suspiro", "fosas", "meditacion")
+        listOf("suspiro", "atencion", "fosas", "meditacion")
     ),
     PracticeGroup(
         "foco", "Antes de algo importante", "Un examen, una entrevista, hablar en público",
@@ -405,6 +407,12 @@ val PRACTICE_GROUPS = listOf(
         "relajacion",
         "Tensar y soltar los músculos tiene un efecto mediano sobre la ansiedad en muchos estudios, y se siente en el cuerpo enseguida.",
         listOf("meditacion", "zumbido", "dormir")
+    ),
+    PracticeGroup(
+        "meditar", "Meditar", "Atención plena, para hacer seguido",
+        "atencion",
+        "Es la práctica de base: respiración, cuerpo y sonidos. Las otras son variaciones para momentos puntuales: lo que pesa, el sueño, el cariño.",
+        listOf("dificil", "benevolencia", "escaneo", "meditacion")
     )
 )
 
@@ -561,6 +569,90 @@ val PRACTICES = listOf(
             "Con cada exhalación, dejá que el cuerpo se afloje.",
             "Tratate con la misma amabilidad con la que tratarías a alguien que querés.",
             "Poco a poco, volvé a notar los sonidos de alrededor. Cuando quieras, abrí los ojos."
+        )
+    ),
+    Practice(
+        "atencion", "Respiración, cuerpo y sonidos", "5, 10 o 15 min", "Fuerte",
+        "La práctica básica de atención plena: primero la respiración, después el cuerpo, después los sonidos.",
+        "Es la forma más estudiada de meditación. En 45 ensayos, las apps de meditación bajaron un poco la ansiedad y la depresión (Linardon y otros, 2024). No reemplaza un tratamiento.",
+        listOf("Sentate con la espalda derecha, sin rigidez.", "Seguí la voz o leé las frases.", "Distraerte es parte de la práctica: cada vez que volvés, entrenás."),
+        listOf(5, 10, 15), 10,
+        steps = listOf(
+            "Buscá una postura cómoda, con la espalda derecha pero sin rigidez… Si querés, cerrá los ojos, o dejá la mirada apoyada en un punto del piso.",
+            "Notá el peso de tu cuerpo. Qué partes se apoyan en la silla, en el piso, en el almohadón.",
+            "Ahora llevá la atención a la respiración. No hace falta cambiarla… Solo notá cómo entra… y cómo sale.",
+            "Elegí un lugar donde la sientas con claridad: la nariz, el pecho o la panza. Quedate ahí un rato.",
+            "Es normal que la mente se vaya. Darte cuenta ya es atención… Volvé a la respiración, sin retarte.",
+            "Ahora abrí la atención a todo el cuerpo. Calor, frío, hormigueo, presión… lo que aparezca.",
+            "Si encontrás una zona tensa, no hace falta arreglarla. Respirá hacia ahí y dejala estar como está.",
+            "Ahora dejá que lleguen los sonidos. Los de cerca… y los de lejos.",
+            "No hace falta ponerles nombre ni decidir si te gustan. Escuchá cómo aparecen y cómo se van.",
+            "Por último, dejá que todo esté a la vez: la respiración, el cuerpo y los sonidos.",
+            "Antes de terminar, agradecete este rato que te diste."
+        )
+    ),
+    Practice(
+        "dificil", "Estar con lo que pesa", "8 o 12 min", "Mixta",
+        "Para cuando algo te preocupa o te angustia: reconocerlo, sentirlo en el cuerpo, hacerle lugar y tratarte con amabilidad.",
+        "Se inspira en las prácticas de autocompasión. En 27 ensayos, esas prácticas redujeron moderadamente la ansiedad, la depresión y el estrés (Ferrari y otros, 2019). Esta versión guiada no fue estudiada por sí sola.",
+        listOf("Elegí algo que te preocupe, pero no lo más pesado de tu vida: algo mediano alcanza.", "Si en algún momento es demasiado, abrí los ojos y volvé a la respiración."),
+        listOf(8, 12), 8,
+        steps = listOf(
+            "Acomodate y tomá un par de respiraciones un poco más largas que lo normal.",
+            "Traé a la mente algo que te esté preocupando. Que no sea lo más difícil de tu vida: algo mediano alcanza.",
+            "Primero, reconocelo. Ponele un nombre simple: «preocupación», «miedo», «enojo»… Decilo despacio, para adentro.",
+            "Ahora fijate dónde lo sentís en el cuerpo. Puede ser el pecho, el estómago, la garganta… Buscá el lugar donde más se nota.",
+            "Dejalo estar. No hace falta que se vaya. Solo le estás haciendo un lugar.",
+            "Aflojá alrededor de esa zona, como si abrieras despacio un puño cerrado… No para que desaparezca: para que pese un poco menos.",
+            "Si querés, apoyá una mano ahí, o en el pecho. Sentí el calor de tu mano.",
+            "Decite algo amable, como se lo dirías a un amigo: «Esto es difícil. Es normal sentirse así. Estoy acá.»",
+            "Preguntate qué necesitás en este momento. Puede ser descanso, paciencia, o que alguien te escuche.",
+            "Dejá que la respuesta llegue sin forzarla… y ofrecétela, aunque sea un poco.",
+            "Ahora soltá el tema y volvé a la respiración. Notá cómo está el cuerpo después de este rato."
+        ),
+        cuidado = "Si la angustia es muy fuerte o te dura, hablalo con alguien de confianza o con un profesional."
+    ),
+    Practice(
+        "escaneo", "Escaneo para dormir", "10, 15 o 20 min", "Mixta",
+        "Acostado, recorrés el cuerpo de los pies a la cabeza y dejás que cada parte se afloje y se ponga pesada.",
+        "En 18 ensayos, la meditación de atención plena mejoró la calidad del sueño más que otras actividades que dan la misma atención y el mismo tiempo (Rusch y otros, 2019). No reemplaza un tratamiento del insomnio.",
+        listOf("Acostate y apagá la luz; podés dejar la pantalla boca abajo.", "Si te dormís antes de terminar, mejor: el sonido baja solo."),
+        listOf(10, 15, 20), 15,
+        steps = listOf(
+            "Acostate boca arriba, con los brazos al costado del cuerpo. Dejá que la cama te sostenga.",
+            "Tomá tres respiraciones lentas… y con cada exhalación, aflojá un poco más.",
+            "Llevá la atención a los pies. Los dedos, las plantas, los talones… Notá lo que sientas, sin cambiar nada.",
+            "Subí despacio a los tobillos, las pantorrillas y las rodillas. Dejá que se pongan pesadas.",
+            "Ahora los muslos y la cadera. Sentí cómo se hunden un poco en el colchón.",
+            "La panza. Notá cómo sube y baja con la respiración, sola, sin esfuerzo.",
+            "El pecho y la espalda. Con cada exhalación, la espalda se apoya un poco más.",
+            "Los hombros. Dejalos caer, lejos de las orejas.",
+            "Los brazos, hasta las manos. Los dedos sueltos, quietos.",
+            "El cuello y la cara. Aflojá la mandíbula, la lengua, los ojos y la frente.",
+            "Ahora sentí el cuerpo entero, pesado y tibio, de los pies a la cabeza.",
+            "Si aparecen pensamientos, no pasa nada. Dejalos ir y volvé al peso del cuerpo.",
+            "No hace falta hacer nada más… Podés quedarte así, y dejar que llegue el sueño."
+        ),
+        cierre = "Seguí descansando… no hace falta hacer nada más."
+    ),
+    Practice(
+        "benevolencia", "Benevolencia", "8 o 12 min", "Mixta",
+        "Desearte bien a vos y, de a poco, a otras personas: alguien que querés, alguien neutro, alguien difícil y, al final, todos.",
+        "En 24 estudios con 1.759 personas, esta práctica aumentó las emociones positivas en el día a día (Zeng y otros, 2015). Es una práctica antigua del budismo, en una versión sin religión.",
+        listOf("No hace falta sentir nada especial: alcanza con decir las frases con intención.", "Si con la persona difícil cuesta demasiado, quedate con alguien más fácil."),
+        listOf(8, 12), 8,
+        steps = listOf(
+            "Acomodate y respirá tranquilo. Dejá que la cara se afloje, como si estuvieras por sonreír.",
+            "Empezá por vos. Decite despacio, para adentro: «Que esté bien… que esté en paz… que me trate con cariño.»",
+            "Si no sentís nada, está bien. Lo importante es la intención, no la emoción.",
+            "Ahora pensá en alguien que querés mucho. Imaginalo frente a vos, sonriendo.",
+            "Deseale lo mismo: «Que estés bien… que estés en paz… que te traten con cariño.»",
+            "Ahora alguien que ves seguido pero casi no conocés: un vecino, alguien del almacén, del ómnibus.",
+            "Esa persona también quiere estar bien, como vos. Deseale lo mismo: «Que estés bien… que estés en paz.»",
+            "Si querés, pensá en alguien con quien tengas un roce. No el más difícil: alguien mediano.",
+            "Sin justificar lo que pasó, probá desearle: «Que estés bien… que encuentres paz.» Si cuesta, volvé a vos.",
+            "Ahora abrí el deseo a todos: tu barrio, tu país, el mundo entero. «Que todos estemos bien… que todos estemos en paz.»",
+            "Volvé a vos, y quedate un momento con lo que haya quedado."
         )
     ),
     Practice(

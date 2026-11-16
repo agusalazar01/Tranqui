@@ -89,6 +89,7 @@ fun ToolScreen(kind: String, nav: Nav) {
     ) {
         BackBar(m?.name ?: "Método") { nav.pop() }
         when (kind) {
+            "ESTUDIO" -> Estudio(nav)
             "EISENHOWER" -> Eisenhower(nav)
             "IVY" -> IvyLee(nav)
             "UNO35" -> UnoTresCinco(nav)
@@ -159,6 +160,115 @@ private fun Progress(done: Int, total: Int) {
             else -> "$done de $total. Ya pasaste la mitad."
         }
     )
+}
+
+// ---------------------------------------------------------------------------------------------
+// Preguntas y repasos espaciados (estudiar)
+// slot = respuesta, due = próximo repaso, minutes = etapa de repaso (0 = nueva)
+// ---------------------------------------------------------------------------------------------
+
+private val INTERVALOS = listOf(1, 3, 7, 14, 30, 60)
+
+@Composable
+private fun Estudio(nav: Nav) {
+    Store.tick.intValue
+    val today = Store.today()
+    val todas = Store.items("estudio")
+    val paraHoy = todas.filter { it.due <= today }
+    var modo by remember { mutableIntStateOf(if (paraHoy.isNotEmpty()) 1 else 0) }
+    var mostrar by remember { mutableStateOf(false) }
+    var hechasHoy by remember { mutableIntStateOf(0) }
+
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Choice("Agregar", modo == 0) { modo = 0 }
+        Choice("Repasar hoy (${paraHoy.size})", modo == 1) { modo = 1; mostrar = false }
+        Choice("Estudiar", modo == 2) { modo = 2 }
+    }
+    when (modo) {
+        0 -> {
+            Small("Escribí preguntas cortas sobre lo que estudiaste. Mejor muchas chicas que pocas enormes.")
+            var q by remember { mutableStateOf("") }
+            var r by remember { mutableStateOf("") }
+            OutlinedTextField(q, { q = it }, label = { Text("Pregunta") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(r, { r = it }, label = { Text("Respuesta") }, modifier = Modifier.fillMaxWidth())
+            PrimaryButton("Guardar pregunta") {
+                if (q.isNotBlank() && r.isNotBlank()) {
+                    // La primera vez se repasa hoy mismo, al rato.
+                    Store.saveItems("estudio", todas + Item(Goal.newId(), q.trim(), r.trim(), day = today, due = today))
+                    q = ""; r = ""
+                }
+            }
+            Small("Tenés ${todas.size} preguntas. ${paraHoy.size} para repasar hoy.")
+            todas.sortedBy { it.due }.take(40).forEach { it2 ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Body(it2.text, size = 15)
+                        Small(if (it2.due <= today) "Hoy" else "En ${it2.due - today} días")
+                    }
+                    DeleteButton { Store.saveItems("estudio", todas.filter { x -> x.id != it2.id }) }
+                }
+            }
+        }
+        1 -> {
+            val actual = paraHoy.firstOrNull()
+            if (actual == null) {
+                TCard(bg = C.SalviaClara, bordered = false) {
+                    SerifText(if (hechasHoy > 0) "¡Repaso listo!" else "Nada para repasar hoy.", 22)
+                    Small(
+                        if (hechasHoy > 0) "Repasaste $hechasHoy. Mañana la app te pregunta las que tocan."
+                        else "Agregá preguntas después de estudiar, o volvé mañana."
+                    )
+                }
+            } else {
+                Progress(hechasHoy, hechasHoy + paraHoy.size)
+                TCard(bg = C.Papel) {
+                    Small("Pregunta")
+                    SerifText(actual.text, 22)
+                    if (mostrar) {
+                        Spacer(Modifier.height(8.dp))
+                        Small("Respuesta")
+                        Body(actual.slot)
+                    }
+                }
+                if (!mostrar) {
+                    Small("Intentá responder en tu cabeza (o en voz alta) antes de mirar. El esfuerzo de recordar es lo que te hace aprender.")
+                    PrimaryButton("Ver la respuesta") { mostrar = true }
+                } else {
+                    fun calificar(etapa: Int, dias: Int) {
+                        Store.saveItems("estudio", todas.map {
+                            if (it.id == actual.id) it.copy(minutes = etapa, due = today + dias) else it
+                        })
+                        hechasHoy++; mostrar = false
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SoftButton("No me salió", Modifier.weight(1f)) {
+                            // Vuelve al final de la fila de hoy y reinicia la etapa.
+                            Store.saveItems("estudio", todas.filter { it.id != actual.id } + actual.copy(minutes = 0, due = today))
+                            hechasHoy++; mostrar = false
+                        }
+                        SoftButton("Me costó", Modifier.weight(1f)) {
+                            val e = actual.minutes
+                            calificar(e, INTERVALOS[e.coerceAtMost(INTERVALOS.lastIndex)].coerceAtMost(3).coerceAtLeast(1))
+                        }
+                        PrimaryButton("Me salió", Modifier.weight(1f)) {
+                            val e = (actual.minutes + 1).coerceAtMost(INTERVALOS.lastIndex)
+                            calificar(e, INTERVALOS[actual.minutes.coerceAtMost(INTERVALOS.lastIndex)])
+                        }
+                    }
+                }
+            }
+        }
+        else -> {
+            Small("Estudiá un tema en un bloque de foco. Al terminar, volvé acá y pasá lo importante a preguntas.")
+            var tema by remember { mutableStateOf("") }
+            OutlinedTextField(tema, { tema = it }, label = { Text("¿Qué vas a estudiar?") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            PrimaryButton("Estudiar 25 minutos") { nav.start(if (tema.isBlank()) "Estudiar" else "Estudiar: ${tema.trim()}", null, 25) }
+            SoftButton("Bloque corto de 15 minutos", Modifier.fillMaxWidth()) {
+                nav.start(if (tema.isBlank()) "Estudiar" else "Estudiar: ${tema.trim()}", null, 15)
+            }
+            Small("Evitá releer y subrayar: se siente productivo pero rinde poco. Preguntarte rinde mucho más.")
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------------------------

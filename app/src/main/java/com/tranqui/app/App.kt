@@ -67,6 +67,7 @@ sealed interface Route {
     data class Notes(val kind: String) : Route
     data object Kanban : Route
     data class Tool(val kind: String) : Route
+    data class Situation(val id: String) : Route
     data class PracticeRun(val id: String, val minutes: Int? = null) : Route
     data object Settings : Route
     data object VoiceRecord : Route
@@ -167,6 +168,7 @@ private fun Detail(top: Route, nav: Nav) {
         is Route.Notes -> NotesScreen(top.kind, nav)
         Route.Kanban -> KanbanScreen(nav)
         is Route.Tool -> ToolScreen(top.kind, nav)
+        is Route.Situation -> SituacionScreen(top.id, nav)
         is Route.PracticeRun -> PracticeScreen(top.id, nav, top.minutes)
         Route.Settings -> SettingsScreen(nav)
         Route.VoiceRecord -> VoiceRecordScreen(nav)

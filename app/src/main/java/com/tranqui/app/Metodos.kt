@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -16,41 +17,106 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun MetodosScreen(nav: Nav) {
+    var verTodos by rememberSaveable { mutableStateOf(false) }
     Box(Modifier.fillMaxSize()) {
         Mist(Modifier.offset(x = (-110).dp, y = (-90).dp).size(300.dp), listOf(C.Arcilla, C.Arena), count = 3, alpha = 0.25f)
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 18.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            ScreenTitle("Métodos", "Agrupados por para qué te sirven")
+            ScreenTitle("Métodos", "¿Para qué lo necesitás?")
             Spacer(Modifier.height(4.dp))
-            METHOD_GROUPS.forEach { (gid, info) ->
-              val delGrupo = METHODS.filter { it.group == gid }
-              if (delGrupo.isNotEmpty()) {
-                Spacer(Modifier.height(6.dp))
-                SerifText(info.first, 21)
-                Small(info.second)
-              }
-              delGrupo.forEach { m ->
-                TCard(onClick = { nav.push(Route.MethodDetail(m.id)) }) {
+            SITUACIONES.forEach { s ->
+                val best = METHODS.firstOrNull { it.id == s.best }
+                TCard(onClick = { nav.push(Route.Situation(s.id)) }) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            SerifText(m.name, 19)
-                            Small(m.short)
+                            SerifText(s.title, 20)
+                            Small(s.ejemplos)
+                            if (best != null) Small("El mejor: ${best.name}", color = C.Musgo)
                         }
-                        Spacer(Modifier.width(8.dp))
-                        Tag(m.tag)
+                        Chevron()
                     }
-                    if (m.action != null && m.action.name in TOOL_ACTIONS) Small("Con herramienta guiada", color = C.Musgo)
                 }
-              }
             }
+            Spacer(Modifier.height(6.dp))
+            TextButton(onClick = { verTodos = !verTodos }) {
+                Text(if (verTodos) "Ocultar la lista completa" else "Ver todos los métodos (${METHODS.size})", color = C.Bosque)
+            }
+            if (verTodos) METHODS.sortedBy { it.name }.forEach { m -> MethodRow(m, nav) }
             Small(
                 "Fuerte: metaanálisis o varios ensayos. Mixta: estudios con resultados distintos. " +
                     "Tradición: sin estudios propios, pero coherente con métodos que sí los tienen."
             )
             Spacer(Modifier.height(12.dp))
         }
+    }
+}
+
+@Composable
+private fun MethodRow(m: Method, nav: Nav) {
+    TCard(onClick = { nav.push(Route.MethodDetail(m.id)) }) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                SerifText(m.name, 19)
+                Small(m.short)
+            }
+            Spacer(Modifier.width(8.dp))
+            Tag(m.tag)
+        }
+    }
+}
+
+@Composable
+fun SituacionScreen(id: String, nav: Nav) {
+    val s = SITUACIONES.firstOrNull { it.id == id } ?: SITUACIONES.first()
+    val best = METHODS.firstOrNull { it.id == s.best }
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 18.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        BackBar(s.title) { nav.pop() }
+        Small(s.ejemplos)
+        if (best != null) {
+            TCard(bg = C.Bosque, bordered = false) {
+                Small("El mejor para esto", color = C.Arena)
+                SerifText(best.name, 26, color = C.Lino)
+                Small(best.short, color = C.Arena)
+                Spacer(Modifier.height(6.dp))
+                Body(s.porQue, color = C.Lino, size = 15)
+                Spacer(Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    PrimaryButton("Usarlo ahora", Modifier.weight(1f), bg = C.Lino, fg = C.Bosque) { useMethod(best, nav) }
+                    PrimaryButton("Cómo es", Modifier.weight(1f), bg = C.Arcilla, fg = C.ArcillaOscura) {
+                        nav.push(Route.MethodDetail(best.id))
+                    }
+                }
+            }
+        }
+        TCard(bg = C.SalviaClara, bordered = false) {
+            Body("Para sacarle más jugo", bold = true)
+            Small(s.combinar)
+        }
+        SectionLabel("También te sirven")
+        s.otros.mapNotNull { o -> METHODS.firstOrNull { it.id == o } }.forEach { MethodRow(it, nav) }
+        Spacer(Modifier.height(16.dp))
+    }
+}
+
+/** Abre directamente la herramienta del método, sin pasar por la explicación. */
+fun useMethod(m: Method, nav: Nav) {
+    when (val a = m.action) {
+        null -> nav.push(Route.MethodDetail(m.id))
+        MethodAction.NEW_GOAL -> nav.push(Route.GoalEdit(null))
+        MethodAction.WOOP -> nav.push(Route.Notes("woop"))
+        MethodAction.HANSEI -> nav.push(Route.Notes("hansei"))
+        MethodAction.IKIGAI -> nav.push(Route.Notes("ikigai"))
+        MethodAction.KANBAN -> nav.push(Route.Kanban)
+        MethodAction.POMODORO -> nav.start("Pomodoro", null, 25)
+        MethodAction.MICRO -> nav.quick(1)
+        MethodAction.KAIZEN -> nav.start("Un minuto de la tarea que evitás", null, 1)
+        MethodAction.SAPO -> nav.sapo()
+        else -> nav.push(Route.Tool(a.name))
     }
 }
 
@@ -89,6 +155,7 @@ fun MethodScreen(id: String, nav: Nav) {
             null -> {}
             else -> PrimaryButton(
                 when (m.action) {
+                    MethodAction.ESTUDIO -> "Mis preguntas y repasos"
                     MethodAction.EISENHOWER -> "Ordenar mis tareas"
                     MethodAction.IVY -> "Armar mi lista de 6"
                     MethodAction.UNO35 -> "Armar mi día 1-3-5"
@@ -217,4 +284,4 @@ fun KanbanScreen(nav: Nav) {
 }
 
 /** Acciones que abren una herramienta guiada propia (Herramientas.kt). */
-val TOOL_ACTIONS = setOf("EISENHOWER", "IVY", "UNO35", "DOSMIN", "VACIAR", "PASOS", "BLOQUES", "PERDON", "PLAZO", "CIERRE", "PLACER")
+val TOOL_ACTIONS = setOf("ESTUDIO", "EISENHOWER", "IVY", "UNO35", "DOSMIN", "VACIAR", "PASOS", "BLOQUES", "PERDON", "PLAZO", "CIERRE", "PLACER")

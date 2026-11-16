@@ -49,7 +49,7 @@ fun quickOptions(size: Int, goals: List<Goal>): List<QuickOption> = when (size) 
 enum class MethodAction {
     NEW_GOAL, WOOP, POMODORO, MICRO, KAIZEN, KANBAN, HANSEI, IKIGAI, SAPO,
     // Herramientas guiadas
-    EISENHOWER, IVY, UNO35, DOSMIN, VACIAR, PASOS, BLOQUES, PERDON, PLAZO, CIERRE, PLACER
+    ESTUDIO, EISENHOWER, IVY, UNO35, DOSMIN, VACIAR, PASOS, BLOQUES, PERDON, PLAZO, CIERRE, PLACER
 }
 
 data class Method(
@@ -69,7 +69,7 @@ val METHOD_GROUPS = listOf(
 )
 
 private val GRUPO_DE = mapOf(
-    "minimos" to "arrancar", "kaizen" to "arrancar", "dosmin" to "arrancar", "sapo" to "arrancar",
+    "estudio" to "foco", "minimos" to "arrancar", "kaizen" to "arrancar", "dosmin" to "arrancar", "sapo" to "arrancar",
     "perdon" to "arrancar", "placer" to "arrancar",
     "pomodoro" to "foco", "micro" to "foco", "bloques" to "foco",
     "eisenhower" to "elegir", "ivylee" to "elegir", "unotrescinco" to "elegir",
@@ -89,7 +89,76 @@ val METHODS: List<Method> by lazy {
     }
 }
 
+/**
+ * Para qué lo querés usar. Cada categoría recomienda UN método (el mejor para eso, por
+ * evidencia o por ser el que más directo lleva a la acción) y lista otros que ayudan.
+ */
+data class Situacion(
+    val id: String, val title: String, val ejemplos: String, val best: String,
+    val porQue: String, val combinar: String, val otros: List<String>
+)
+
+val SITUACIONES = listOf(
+    Situacion(
+        "estudiar", "Estudiar", "Un examen, un curso, un idioma, aprender algo nuevo",
+        "estudio",
+        "Es la técnica con más evidencia para recordar lo que estudiás: preguntarte en vez de releer, y repasar con días de por medio.",
+        "Estudiá en Pomodoros de 25 minutos y, al final de cada uno, pasá lo importante a preguntas.",
+        listOf("pomodoro", "sientonces", "micro", "pasos")
+    ),
+    Situacion(
+        "organizar", "Organizar algo concreto", "Un viaje, una mudanza, un evento, un trámite",
+        "vaciar",
+        "Primero sacás de la cabeza todo lo que hay que hacer, y después la app te hace decidir qué pasa con cada cosa: lo grande se divide en pasos y lo que tiene fecha recibe aviso.",
+        "Lo que tiene día (pasajes, reservas) ponelo en «Tu propia fecha límite».",
+        listOf("pasos", "plazo", "kanban", "bloques")
+    ),
+    Situacion(
+        "dia", "Trabajo y el día a día", "Cuando tenés mucho para hoy o esta semana",
+        "ivylee",
+        "Decidís el orden de antemano y hacés una sola cosa por vez hasta terminarla. Es simple y saca la duda de «¿con qué sigo?».",
+        "Si no sabés qué va primero, pasá antes por «Urgente o importante». Al final del día, hacé el cierre.",
+        listOf("eisenhower", "unotrescinco", "bloques", "pomodoro", "dosmin", "cierre")
+    ),
+    Situacion(
+        "arrancar", "Cuando no podés arrancar", "Esa tarea que venís pateando hace días",
+        "kaizen",
+        "Empezar es lo más difícil. Un minuto es tan poco que no da para negarse, y casi siempre seguís después.",
+        "Si ya te sentís mal por haberlo postergado, empezá por «Perdonarte y volver».",
+        listOf("perdon", "pasos", "sapo", "placer", "dosmin")
+    ),
+    Situacion(
+        "metas", "Metas a futuro", "Algo que querés lograr en meses o años",
+        "woop",
+        "Imaginar el resultado y también el obstáculo, con un plan para cuando aparezca, funciona mejor que solo pensar en positivo. Tiene ensayos a favor.",
+        "Cuando tengas la meta, dividila en pasos y ponele fecha al primero.",
+        listOf("ikigai", "pasos", "plazo", "kanban")
+    ),
+    Situacion(
+        "habitos", "Hábitos y desarrollo personal", "Hacer ejercicio, leer, meditar, cuidarte",
+        "sientonces",
+        "Es de los métodos con más evidencia: atar el hábito a un momento concreto («después de cenar, leo») hace que se dispare solo.",
+        "Empezá con una versión mínima (Hábitos mínimos) y sumale algo que te guste mientras lo hacés.",
+        listOf("minimos", "placer", "kaizen", "wabisabi")
+    ),
+    Situacion(
+        "revisar", "Revisar cómo te fue", "Al final del día o de la semana",
+        "hansei",
+        "Mirar qué funcionó y qué no, sin culparte, te deja ajustar el plan en vez de abandonarlo.",
+        "Hacé el cierre cada día y el Hansei una vez por semana.",
+        listOf("cierre", "perdon", "kaizen")
+    )
+)
+
 private val NEW_METHODS = listOf(
+    Method(
+        "estudio", "Preguntas y repasos", null, "Fuerte", "Preguntarte en vez de releer, con repasos espaciados",
+        "Después de estudiar un tema, lo pasás a preguntas. La app te las va tomando: hoy, mañana, en 3 días, en una semana… Cada vez que te sale, el siguiente repaso queda más lejos.",
+        "Tratar de recordar fortalece el recuerdo mucho más que volver a leer. Y repasar con días de por medio rinde más que estudiar todo junto el día antes.",
+        "Una revisión de 10 técnicas de estudio calificó como de «alta utilidad» solo dos: autoevaluarse y espaciar los repasos; releer y subrayar quedaron como de baja utilidad (Dunlosky y otros, 2013). Un metaanálisis de 118 artículos encontró que hacerse pruebas de práctica rinde más que volver a estudiar, en laboratorio y en clase (Adesope y otros, 2017).",
+        listOf("Estudiá un tema (por ejemplo, un Pomodoro).", "Escribí 3 a 5 preguntas con su respuesta.", "Cada día, abrí «Repasar hoy»: pensá la respuesta antes de verla.", "Marcá si te salió o no; la app decide cuándo volver a preguntarte."),
+        MethodAction.ESTUDIO
+    ),
     Method(
         "eisenhower", "Urgente o importante", null, "Mixta", "Separar lo que apura de lo que importa",
         "Ordenás cada tarea según dos preguntas: ¿es urgente? ¿es importante? Lo importante y urgente se hace ya; lo importante sin apuro se agenda; lo urgente que no importa se acota; lo demás se suelta.",

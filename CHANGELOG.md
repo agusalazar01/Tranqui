@@ -8,7 +8,8 @@
 - Sonidos «En línea»: 20 sonidos más de BigSoundBank que se escuchan por internet y no ocupan lugar en el celular.
 - Girar la pantalla ya no corta el sonido ni te manda atrás.
 - El botón «atrás» del celular vuelve a la pantalla anterior; en las pestañas vuelve a Hoy, y en la biblioteca la cierra.
-- Métodos agrupados por para qué sirven: arrancar cuando cuesta, enfocarte, elegir qué hacer primero, ordenar lo pendiente, sostener metas y revisar.
+- Métodos por categoría: Estudiar, Organizar algo concreto, Trabajo y el día a día, Cuando no podés arrancar, Metas a futuro, Hábitos y desarrollo personal, Revisar cómo te fue. Cada una recomienda **el mejor método** para eso, con botón «Usarlo ahora», cómo combinarlo y otros que también sirven. La lista completa queda abajo.
+- Nuevo método para estudiar: «Preguntas y repasos». Escribís preguntas con su respuesta y la app te las toma con repasos espaciados (1, 3, 7, 14, 30 y 60 días).
 - 9 métodos nuevos con herramienta guiada: Urgente o importante (Eisenhower), Ivy Lee, 1-3-5, Vaciar la mente, Dividir en pasos, Bloques de tiempo con aviso, Perdonarte y volver, Tu propia fecha límite (con avisos) y Cierre del día. La regla de los 2 minutos y Placer asociado también tienen herramienta.
 - Cada herramienta te lleva a la acción: botón «Empezar» con temporizador, una tarea por vez, progreso y pasos que alimentan el tablero.
 - Calma: se sacaron los sonidos sintéticos de prueba.

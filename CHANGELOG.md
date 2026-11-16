@@ -1,4 +1,4 @@
-# Próxima versión (sin publicar)
+# Tranqui 0.5.3
 
 - «Cómo suena» para cada voz: tono más grave, eco suave, volumen extra de la voz y limpieza de graves. Se prueba con una frase grabada (con el fondo, si querés) y no modifica la grabación.
 - Volumen del fondo regulable en cada práctica; por defecto, más alto que antes.

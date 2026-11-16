@@ -1,0 +1,682 @@
+{
+ "groups": [
+  "Agua",
+  "Lluvia y tormenta",
+  "Bosque y campo",
+  "Noche",
+  "Fuego",
+  "Hogar",
+  "Viaje",
+  "Música suave",
+  "Cuencos y tonos",
+  "Ruido de fondo"
+ ],
+ "sounds": [
+  {
+   "id": "arroyo",
+   "title": "Arroyo",
+   "sub": "Agua entre piedras",
+   "group": "Agua",
+   "kind": "agua",
+   "credit": "«Murmuring Stream», borralbi — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": true,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "arroyo-monte",
+   "title": "Arroyo en el monte",
+   "sub": "Agua y bosque",
+   "group": "Agua",
+   "kind": "agua",
+   "credit": "#2714, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "2714"
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "arroyito",
+   "title": "Arroyito",
+   "sub": "Un hilo de agua",
+   "group": "Agua",
+   "kind": "agua",
+   "credit": "#0864, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "0864"
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "rio",
+   "title": "Río",
+   "sub": "Corriente tranquila",
+   "group": "Agua",
+   "kind": "agua",
+   "credit": "«River in Icelandic nature», askeseverin — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "cascada",
+   "title": "Cascada",
+   "sub": "Caída de agua constante",
+   "group": "Agua",
+   "kind": "agua",
+   "credit": "«Þingvellir waterfall hard 2», dikolson — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "olas-suaves",
+   "title": "Olas suaves",
+   "sub": "Orilla tranquila",
+   "group": "Agua",
+   "kind": "agua",
+   "credit": "«Beach Waves 04», DylanTheFish — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": true,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "playa",
+   "title": "Playa",
+   "sub": "Olas pequeñas en la arena",
+   "group": "Agua",
+   "kind": "agua",
+   "credit": "#2566, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "2566"
+   },
+   "mode": "bucle",
+   "max": 180
+  },
+  {
+   "id": "olas-rocas",
+   "title": "Olas entre rocas",
+   "sub": "Mar sereno",
+   "group": "Agua",
+   "kind": "agua",
+   "credit": "#1445, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "1445"
+   },
+   "mode": "bucle",
+   "max": 180
+  },
+  {
+   "id": "mar-abierto",
+   "title": "Mar abierto",
+   "sub": "Olas del Atlántico",
+   "group": "Agua",
+   "kind": "agua",
+   "credit": "#0698, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "0698"
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "olas",
+   "title": "Olas grandes",
+   "sub": "Mar con fuerza",
+   "group": "Agua",
+   "kind": "agua",
+   "credit": "«Big waves hit land», straget — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "bote",
+   "title": "Bote",
+   "sub": "Remando despacio",
+   "group": "Agua",
+   "kind": "agua",
+   "credit": "#1514, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "1514"
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "gotas-cueva",
+   "title": "Gotas en la cueva",
+   "sub": "Goteo lento",
+   "group": "Agua",
+   "kind": "agua",
+   "credit": "«Drops in the small cave», Selector — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "lluvia-bosque",
+   "title": "Lluvia en el bosque",
+   "sub": "Gotas entre las hojas",
+   "group": "Lluvia y tormenta",
+   "kind": "lluvia",
+   "credit": "«ForestRainShower1a», AlanCat — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": true,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "lluvia-carpa",
+   "title": "Lluvia en la carpa",
+   "sub": "Bajo techo de tela",
+   "group": "Lluvia y tormenta",
+   "kind": "lluvia",
+   "credit": "«In the Tent - Rain», pulswelle — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "lluvia-auto",
+   "title": "Lluvia sobre el auto",
+   "sub": "Refugio en la ruta",
+   "group": "Lluvia y tormenta",
+   "kind": "lluvia",
+   "credit": "#1293, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "1293"
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "lluvia-fuerte",
+   "title": "Lluvia fuerte",
+   "sub": "Aguacero parejo",
+   "group": "Lluvia y tormenta",
+   "kind": "lluvia",
+   "credit": "«Rain_06», Q.K. — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "tormenta-carpa",
+   "title": "Tormenta en la carpa",
+   "sub": "Lluvia y truenos",
+   "group": "Lluvia y tormenta",
+   "kind": "lluvia",
+   "credit": "#0820, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "0820"
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "tormenta",
+   "title": "Tormenta lejana",
+   "sub": "Truenos en la selva",
+   "group": "Lluvia y tormenta",
+   "kind": "lluvia",
+   "credit": "«Thunder and rain during the night in the Amazonian Rainforest», felix.blume — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "bosque",
+   "title": "Bosque",
+   "sub": "Pájaros a la tarde",
+   "group": "Bosque y campo",
+   "kind": "bosque",
+   "credit": "«sfx_amb_forest_spring_afternoon-01», bajko — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": true,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "amanecer",
+   "title": "Amanecer",
+   "sub": "Coro de pájaros",
+   "group": "Bosque y campo",
+   "kind": "bosque",
+   "credit": "«Dawn Chorus Birdsong», squashy555 — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "laguna",
+   "title": "Laguna en el campo",
+   "sub": "Ranas, pájaros y viento",
+   "group": "Bosque y campo",
+   "kind": "bosque",
+   "credit": "#0691, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "0691"
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "chicharras",
+   "title": "Chicharras",
+   "sub": "Siesta de verano",
+   "group": "Bosque y campo",
+   "kind": "bosque",
+   "credit": "#3002, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "3002"
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "viento",
+   "title": "Viento",
+   "sub": "Entre las copas",
+   "group": "Bosque y campo",
+   "kind": "bosque",
+   "credit": "«wind in the trees», usuario eliminado — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "grillos",
+   "title": "Grillos",
+   "sub": "Noche de verano",
+   "group": "Noche",
+   "kind": "noche",
+   "credit": "«AMBIENCE NIGHT FIELD CRICKET 01», sengjinn — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": true,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "noche-campo",
+   "title": "Noche de campo",
+   "sub": "Grillos y silencio",
+   "group": "Noche",
+   "kind": "noche",
+   "credit": "#1880, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "1880"
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "ranas",
+   "title": "Ranas",
+   "sub": "Coro junto al estanque",
+   "group": "Noche",
+   "kind": "noche",
+   "credit": "#0998, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "0998"
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "fogata",
+   "title": "Fogata",
+   "sub": "Leña crepitando",
+   "group": "Fuego",
+   "kind": "fuego",
+   "credit": "«crackling_fire_021012», moxobna — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": true,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "fuego-bosque",
+   "title": "Fuego en el bosque",
+   "sub": "Fogón de noche",
+   "group": "Fuego",
+   "kind": "fuego",
+   "credit": "«campfire in a forest at night», Duophonic — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "chimenea",
+   "title": "Chimenea",
+   "sub": "Fuego en casa",
+   "group": "Fuego",
+   "kind": "fuego",
+   "credit": "#2855, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "2855"
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "gato",
+   "title": "Gato ronroneando",
+   "sub": "Calor de hogar",
+   "group": "Hogar",
+   "kind": "hogar",
+   "credit": "#0436, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "0436"
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "reloj",
+   "title": "Reloj",
+   "sub": "Tic tac de un despertador",
+   "group": "Hogar",
+   "kind": "hogar",
+   "credit": "#2815, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "2815"
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "tren",
+   "title": "Tren",
+   "sub": "Viaje en vagón",
+   "group": "Viaje",
+   "kind": "viaje",
+   "credit": "#2727, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "2727"
+   },
+   "mode": "bucle",
+   "max": 180
+  },
+  {
+   "id": "tranvia",
+   "title": "Tranvía",
+   "sub": "Paseo por la ciudad",
+   "group": "Viaje",
+   "kind": "viaje",
+   "credit": "#3525, BigSoundBank, Joseph Sardin, CC0",
+   "featured": false,
+   "source": {
+    "type": "bigsoundbank",
+    "id": "3525"
+   },
+   "mode": "bucle",
+   "max": 150
+  },
+  {
+   "id": "piano-satie",
+   "title": "Gymnopédie n.º 1",
+   "sub": "Satie, piano lento",
+   "group": "Música suave",
+   "kind": "musica",
+   "credit": "«Gymnopedie No 1», Kevin MacLeod (incompetech.com), CC BY 4.0",
+   "featured": true,
+   "source": {
+    "type": "incompetech",
+    "title": "Gymnopedie No 1"
+   },
+   "mode": "bucle",
+   "max": 900,
+   "lufs": -21
+  },
+  {
+   "id": "meditacion-1",
+   "title": "Meditación I",
+   "sub": "Piano y espacio",
+   "group": "Música suave",
+   "kind": "musica",
+   "credit": "«Meditation Impromptu 01», Kevin MacLeod (incompetech.com), CC BY 4.0",
+   "featured": false,
+   "source": {
+    "type": "incompetech",
+    "title": "Meditation Impromptu 01"
+   },
+   "mode": "bucle",
+   "max": 900,
+   "lufs": -21
+  },
+  {
+   "id": "meditacion-2",
+   "title": "Meditación II",
+   "sub": "Notas largas",
+   "group": "Música suave",
+   "kind": "musica",
+   "credit": "«Meditation Impromptu 02», Kevin MacLeod (incompetech.com), CC BY 4.0",
+   "featured": false,
+   "source": {
+    "type": "incompetech",
+    "title": "Meditation Impromptu 02"
+   },
+   "mode": "bucle",
+   "max": 900,
+   "lufs": -21
+  },
+  {
+   "id": "meditacion-3",
+   "title": "Meditación III",
+   "sub": "Suave y abierta",
+   "group": "Música suave",
+   "kind": "musica",
+   "credit": "«Meditation Impromptu 03», Kevin MacLeod (incompetech.com), CC BY 4.0",
+   "featured": false,
+   "source": {
+    "type": "incompetech",
+    "title": "Meditation Impromptu 03"
+   },
+   "mode": "bucle",
+   "max": 900,
+   "lufs": -21
+  },
+  {
+   "id": "alma-serena",
+   "title": "Alma serena",
+   "sub": "Piano cálido",
+   "group": "Música suave",
+   "kind": "musica",
+   "credit": "«Clean Soul», Kevin MacLeod (incompetech.com), CC BY 4.0",
+   "featured": false,
+   "source": {
+    "type": "incompetech",
+    "title": "Clean Soul"
+   },
+   "mode": "bucle",
+   "max": 900,
+   "lufs": -21
+  },
+  {
+   "id": "sonador",
+   "title": "Soñador",
+   "sub": "Ambiente tranquilo",
+   "group": "Música suave",
+   "kind": "musica",
+   "credit": "«Dreamer», Kevin MacLeod (incompetech.com), CC BY 4.0",
+   "featured": false,
+   "source": {
+    "type": "incompetech",
+    "title": "Dreamer"
+   },
+   "mode": "bucle",
+   "max": 900,
+   "lufs": -21
+  },
+  {
+   "id": "piano-relajante",
+   "title": "Piano relajante",
+   "sub": "Para bajar el ritmo",
+   "group": "Música suave",
+   "kind": "musica",
+   "credit": "«Relaxing Piano Music», Kevin MacLeod (incompetech.com), CC BY 4.0",
+   "featured": false,
+   "source": {
+    "type": "incompetech",
+    "title": "Relaxing Piano Music"
+   },
+   "mode": "bucle",
+   "max": 900,
+   "lufs": -21
+  },
+  {
+   "id": "cuenco-grave",
+   "title": "Cuenco grave",
+   "sub": "Un golpe largo",
+   "group": "Cuencos y tonos",
+   "kind": "cuenco",
+   "credit": "«Tibetan singing bowl», enhuber — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "golpe"
+  },
+  {
+   "id": "cuenco-agudo",
+   "title": "Cuenco agudo",
+   "sub": "Más brillante",
+   "group": "Cuencos y tonos",
+   "kind": "cuenco",
+   "credit": "«singing bell hit 2», ryancacophony — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "golpe"
+  },
+  {
+   "id": "campanas",
+   "title": "Campanas de viento",
+   "sub": "Suaves y espaciadas",
+   "group": "Cuencos y tonos",
+   "kind": "cuenco",
+   "credit": "«Wind chimes 1», giddster — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "tanpura",
+   "title": "Tanpura",
+   "sub": "Un fondo que vibra",
+   "group": "Cuencos y tonos",
+   "kind": "cuenco",
+   "credit": "«Tambura_Eb_fat», Kaczinski — Freesound (vía graphoflife/meditation-sounds), CC0",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "ruido-marron",
+   "title": "Ruido marrón",
+   "sub": "Grave, como un rumor",
+   "group": "Ruido de fondo",
+   "kind": "ruido",
+   "credit": "Generado por Tranqui",
+   "featured": true,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "ruido-rosa",
+   "title": "Ruido rosa",
+   "sub": "Parejo y suave",
+   "group": "Ruido de fondo",
+   "kind": "ruido",
+   "credit": "Generado por Tranqui",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  },
+  {
+   "id": "ruido-blanco",
+   "title": "Ruido blanco",
+   "sub": "Brillante, tapa ruidos",
+   "group": "Ruido de fondo",
+   "kind": "ruido",
+   "credit": "Generado por Tranqui",
+   "featured": false,
+   "source": {
+    "type": "local"
+   },
+   "mode": "bucle"
+  }
+ ]
+}

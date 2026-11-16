@@ -40,6 +40,16 @@ input[type=range]{flex:1;accent-color:var(--bosque);height:28px;min-width:0}
 #note{font-size:11px;line-height:1.45;color:var(--texto2);margin:10px 3px 0;min-height:15px}
 details{margin:16px 3px 0;font-size:11px;color:var(--texto2);line-height:1.5}
 summary{font-size:12px;color:var(--bosque);cursor:pointer;min-height:32px}
+.explore{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:14px;min-height:58px;padding:12px 16px;border:0;border-radius:21px;background:var(--bosque);color:var(--lino);font:600 15px system-ui,-apple-system,"Roboto",sans-serif;text-align:left}
+.explore small{display:block;font-weight:400;font-size:11px;opacity:.8;margin-top:2px}
+.libhead{display:flex;align-items:center;gap:10px;margin:16px 2px 6px}
+.back{width:40px;height:40px;border-radius:50%;border:1px solid var(--borde);background:var(--papel);color:var(--bosque);font-size:18px}
+.libtitle{font-family:Georgia,serif;font-size:22px}
+.chips{display:flex;gap:7px;overflow-x:auto;padding:4px 1px 6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;min-height:36px;padding:0 13px;border-radius:18px;border:1px solid var(--borde);background:var(--papel);color:var(--bosque);font:13px system-ui,-apple-system,"Roboto",sans-serif}
+.chip.on{background:var(--bosque);color:var(--lino);border-color:var(--bosque)}
+.hidden{display:none}
 @media(min-width:520px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.sound{transition:none}}
 </style>
@@ -55,8 +65,11 @@ summary{font-size:12px;color:var(--bosque);cursor:pointer;min-height:32px}
  <div class="row"><label for="pitch">Tono</label><input id="pitch" type="range" min="-6" max="6" step="1" value="0"><span class="val" id="pitchValue">0</span></div>
  <div class="actions"><button id="play" class="btn play">Escuchar</button><button id="timer" class="btn soft">Sin temporizador</button></div>
 </section>
-<div id="catalog"></div>
-<p id="note" role="status">Grabaciones reales incluidas en la app. Funcionan sin internet.</p>
+<div id="home"><div class="cat">Para empezar</div><div class="grid" id="featured"></div>
+<button class="explore" id="openLib"><span>Explorar la biblioteca<small id="libCount">Naturaleza, hogar, viaje, música suave y más</small></span><span aria-hidden="true">›</span></button></div>
+<div id="library" class="hidden"><div class="libhead"><button class="back" id="closeLib" aria-label="Volver">‹</button><div class="libtitle">Biblioteca de sonidos</div></div>
+<div class="chips" id="chips"></div><div id="catalog"></div></div>
+<p id="note" role="status">Grabaciones reales en alta calidad, incluidas en la app: funcionan sin internet. Mejor con auriculares.</p>
 <details><summary>Créditos de los sonidos</summary><div id="credits"></div></details>
 <script>
 // Íconos simples, en el estilo orgánico de Tranqui (sin emojis).
@@ -67,63 +80,40 @@ const ICON={
  noche:'<path d="M13 3a7 7 0 1 0 4 12A6 6 0 0 1 13 3z" fill="#6F8774"/>',
  fuego:'<path d="M10 2c4 4 6 7 6 10a6 6 0 0 1-12 0c0-2 1-4 3-5 0 2 1 3 2 3 0-3-1-5 1-8z" fill="#D5A080"/>',
  cuenco:'<path d="M3 9h14a7 7 0 0 1-14 0z" fill="#B89774"/><circle cx="10" cy="5" r="1.6" fill="#D5A080"/>',
+ hogar:'<path d="M3 10l7-6 7 6v7H3z" fill="#C4A080"/><rect x="8" y="12" width="4" height="5" fill="#F3EFE5"/>',
+ viaje:'<rect x="3" y="5" width="14" height="9" rx="3" fill="#8C96A0"/><circle cx="7" cy="16" r="1.6" fill="#344C40"/><circle cx="13" cy="16" r="1.6" fill="#344C40"/>',
+ musica:'<path d="M8 4l9-2v10" stroke="#6E6488" stroke-width="1.6" fill="none"/><circle cx="6" cy="14" r="2.6" fill="#968CAA"/><circle cx="15" cy="12" r="2.6" fill="#6E6488"/><path d="M8 4v10" stroke="#968CAA" stroke-width="1.6"/>',
  ruido:'<path d="M2 10c2-4 4 4 6 0s4 4 6 0 3 3 4 0" stroke="#68766A" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
 };
 const COLORS={agua:[[111,157,174],[156,183,180]],lluvia:[[133,157,164],[177,188,178]],bosque:[[119,151,119],[173,178,137]],noche:[[120,131,150],[166,171,165]],
- fuego:[[207,143,93],[181,105,76]],cuenco:[[184,151,116],[211,187,143]],ruido:[[166,171,165],[197,194,180]]};
-// Catálogo. «fuente»: de dónde salió la grabación original (todas CC0).
-const CATALOG=[
- {cat:'Agua',items:[
-  ['arroyo','Arroyo','Agua entre piedras','agua','«Murmuring Stream», borralbi (Freesound)'],
-  ['arroyo-monte','Arroyo en el monte','Agua y bosque','agua','«Forest and stream 2», Joseph Sardin (BigSoundBank)'],
-  ['arroyito','Arroyito','Un hilo de agua','agua','«Brooklet», Joseph Sardin (BigSoundBank)'],
-  ['rio','Río','Corriente tranquila','agua','«River in Icelandic nature», askeseverin (Freesound)'],
-  ['cascada','Cascada','Caída de agua constante','agua','«Þingvellir waterfall hard 2», dikolson (Freesound)'],
-  ['olas-suaves','Olas suaves','Orilla tranquila','agua','«Beach Waves 04», DylanTheFish (Freesound)'],
-  ['olas','Olas','Mar abierto','agua','«Big waves hit land», straget (Freesound)'],
-  ['gotas-cueva','Gotas en la cueva','Goteo lento','agua','«Drops in the small cave», Selector (Freesound)']]},
- {cat:'Lluvia',items:[
-  ['lluvia-bosque','Lluvia en el bosque','Gotas entre las hojas','lluvia','«ForestRainShower1a», AlanCat (Freesound)'],
-  ['lluvia-carpa','Lluvia en la carpa','Bajo techo de tela','lluvia','«In the Tent - Rain», pulswelle (Freesound)'],
-  ['lluvia-fuerte','Lluvia fuerte','Aguacero parejo','lluvia','«Rain_06», Q.K. (Freesound)'],
-  ['tormenta','Tormenta lejana','Lluvia y truenos','lluvia','«Thunder and rain during the night in the Amazonian Rainforest», felix.blume (Freesound)']]},
- {cat:'Bosque y campo',items:[
-  ['bosque','Bosque','Pájaros a la tarde','bosque','«sfx_amb_forest_spring_afternoon-01», bajko (Freesound)'],
-  ['amanecer','Amanecer','Coro de pájaros','bosque','«Dawn Chorus Birdsong», squashy555 (Freesound)'],
-  ['viento','Viento','Entre las copas','bosque','«wind in the trees», usuario eliminado (Freesound)'],
-  ['grillos','Grillos','Noche de verano','noche','«AMBIENCE NIGHT FIELD CRICKET 01», sengjinn (Freesound)'],
-  ['noche-campo','Noche de campo','Grillos y silencio','noche','«Campaign at night 4», Joseph Sardin (BigSoundBank)']]},
- {cat:'Fuego',items:[
-  ['fogata','Fogata','Leña crepitando','fuego','«crackling_fire_021012», moxobna (Freesound)'],
-  ['fuego-bosque','Fuego en el bosque','Fogón de noche','fuego','«campfire in a forest at night», Duophonic (Freesound)'],
-  ['chimenea','Chimenea','Fuego en casa','fuego','«Fireplace 3», Joseph Sardin (BigSoundBank)']]},
- {cat:'Cuencos y tonos',items:[
-  ['cuenco-grave','Cuenco grave','Un golpe largo','cuenco','«Tibetan singing bowl», enhuber (Freesound)'],
-  ['cuenco-agudo','Cuenco agudo','Más brillante','cuenco','«singing bell hit 2», ryancacophony (Freesound)'],
-  ['campanas','Campanas de viento','Suaves y espaciadas','cuenco','«Wind chimes 1», giddster (Freesound)'],
-  ['tanpura','Tanpura','Un fondo que vibra','cuenco','«Tambura_Eb_fat», Kaczinski (Freesound)']]},
- {cat:'Ruido de fondo',items:[
-  ['ruido-rosa','Ruido rosa','Parejo y suave','ruido','Generado por Tranqui'],
-  ['ruido-marron','Ruido marrón','Grave, como un rumor','ruido','Generado por Tranqui']]}
-];
+ fuego:[[207,143,93],[181,105,76]],cuenco:[[184,151,116],[211,187,143]],ruido:[[166,171,165],[197,194,180]],hogar:[[196,160,128],[214,196,170]],
+ viaje:[[140,150,160],[190,190,180]],musica:[[150,140,170],[196,186,200]]};
 const $=id=>document.getElementById(id);
 function nativeCall(m,...a){try{const api=window.TranquiApp;if(api&&typeof api[m]==='function')return api[m](...a)}catch(e){}return null}
 // Solo se muestran los sonidos que están dentro de la app.
 const files=(nativeCall('available')||'').split(',').filter(Boolean);
+let CAT={groups:[],sounds:[]};
+try{const r=new XMLHttpRequest();r.open('GET','catalogo.json',false);r.send();CAT=JSON.parse(r.responseText)}catch(e){}
 const INFO={};
-CATALOG.forEach(c=>c.items.forEach(([id,title,sub,kind,src])=>{if(!files.length||files.includes(id))INFO[id]={title,sub,kind,src}}));
-let selected=INFO.arroyo?'arroyo':Object.keys(INFO)[0],playing=false,timerMin=0,volume=62,pitch=0;
-// Catálogo en pantalla
-const catalog=$('catalog');
-CATALOG.forEach(c=>{const ok=c.items.filter(i=>INFO[i[0]]);if(!ok.length)return;
- const h=document.createElement('div');h.className='cat';h.textContent=c.cat;catalog.appendChild(h);
- const g=document.createElement('div');g.className='grid';
- ok.forEach(([id,title,sub,kind])=>{const b=document.createElement('button');b.className='sound';b.dataset.id=id;
-  b.innerHTML='<span class="symbol"><svg viewBox="0 0 20 20" aria-hidden="true">'+ICON[kind]+'</svg></span><span><strong>'+title+'</strong><small>'+sub+'</small></span>';
-  b.addEventListener('click',()=>{selected=id;nativeCall('select',id);if(playing)nativeCall('play',id);render()});g.appendChild(b)});
- catalog.appendChild(g)});
-$('credits').innerHTML='Todas las grabaciones son de dominio público (CC0 1.0): se pueden usar libremente. Tranqui las recortó, igualó el volumen y empalmó para que suenen en bucle.<br><br>'+
- Object.values(INFO).map(i=>'<b>'+i.title+'</b>: '+i.src).join('<br>')+'<br><br>Freesound (freesound.org) y BigSoundBank (bigsoundbank.com). Recortes de Freesound tomados del catálogo de graphoflife/meditation-sounds.';
+CAT.sounds.forEach(x=>{if(!files.length||files.includes(x.id))INFO[x.id]={title:x.title,sub:x.sub,kind:x.kind,src:x.credit,group:x.group,featured:x.featured}});
+let selected=INFO.arroyo?'arroyo':Object.keys(INFO)[0],playing=false,timerMin=0,volume=62,pitch=0,group='';
+function card(id){const d=INFO[id],b=document.createElement('button');b.className='sound';b.dataset.id=id;
+ b.innerHTML='<span class="symbol"><svg viewBox="0 0 20 20" aria-hidden="true">'+(ICON[d.kind]||ICON.ruido)+'</svg></span><span><strong>'+d.title+'</strong><small>'+d.sub+'</small></span>';
+ b.addEventListener('click',()=>{selected=id;nativeCall('select',id);if(playing)nativeCall('play',id);render()});return b}
+const featured=$('featured');Object.keys(INFO).filter(id=>INFO[id].featured).forEach(id=>featured.appendChild(card(id)));
+$('libCount').textContent=Object.keys(INFO).length+' sonidos: naturaleza, hogar, viaje, música suave y más';
+function buildLibrary(){const cat=$('catalog');cat.innerHTML='';
+ CAT.groups.forEach(g=>{if(group&&g!==group)return;const ids=Object.keys(INFO).filter(id=>INFO[id].group===g);if(!ids.length)return;
+  const h=document.createElement('div');h.className='cat';h.textContent=g;cat.appendChild(h);
+  const grid=document.createElement('div');grid.className='grid';ids.forEach(id=>grid.appendChild(card(id)));cat.appendChild(grid)});
+ render();setTimeout(report,50)}
+const chips=$('chips');['',...CAT.groups].forEach(g=>{if(g&&!Object.values(INFO).some(d=>d.group===g))return;
+ const c=document.createElement('button');c.className='chip'+(g===''?' on':'');c.textContent=g||'Todos';
+ c.addEventListener('click',()=>{group=g;chips.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===c));buildLibrary()});chips.appendChild(c)});
+$('openLib').addEventListener('click',()=>{$('home').classList.add('hidden');$('library').classList.remove('hidden');buildLibrary();nativeCall('scrollTop')});
+$('closeLib').addEventListener('click',()=>{$('library').classList.add('hidden');$('home').classList.remove('hidden');render();setTimeout(report,50)});
+$('credits').innerHTML='Grabaciones de dominio público (CC0) de Freesound y BigSoundBank, y música de Kevin MacLeod con licencia CC BY 4.0. Tranqui las recortó, igualó el volumen sin comprimir y empalmó para que suenen en bucle.<br><br>'+
+ Object.values(INFO).map(i=>'<b>'+i.title+'</b>: '+i.src).join('<br>')+'<br><br>Música: Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 — creativecommons.org/licenses/by/4.0/';
 function sync(){const p=nativeCall('isPlaying');if(p!==null)playing=!!p;const s=nativeCall('currentSound');if(s&&INFO[s])selected=s;
  const v=nativeCall('currentVolume');if(typeof v==='number'){volume=Math.round(v*100);$('vol').value=volume;$('volumeValue').textContent=volume+'%'}
  const t=nativeCall('currentTimer');if(typeof t==='number')timerMin=t;

@@ -22,22 +22,15 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      # Sonidos de BigSoundBank (CC0): se descargan y preparan al compilar.
-      # Si alguno falla, la app se compila igual y ese sonido no aparece.
-      - name: Sonidos de BigSoundBank
+      # Biblioteca de sonidos: lo que no está en el repositorio (BigSoundBank CC0 y música
+      # CC BY de Kevin MacLeod) se descarga y prepara acá. Si algo falla, ese sonido no aparece.
+      - name: Biblioteca de sonidos
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg espeak-ng >/dev/null
           chmod +x tools/preparar_sonido.sh
-          mkdir -p "$RUNNER_TEMP/bsb"
-          while read id nombre; do
-            [ -z "$id" ] && continue
-            if curl -fsSL --retry 3 -A "Tranqui (GitHub Actions)" -o "$RUNNER_TEMP/bsb/$id.mp3" "https://bigsoundbank.com/UPLOAD/mp3/$id.mp3"; then
-              tools/preparar_sonido.sh "$RUNNER_TEMP/bsb/$id.mp3" "app/src/main/assets/soundscape/sounds/$nombre.ogg" 120 bucle || echo "::warning::No se pudo preparar $nombre"
-            else
-              echo "::warning::No se pudo descargar $id ($nombre)"
-            fi
-          done < tools/bigsoundbank.txt
-          ls -la app/src/main/assets/soundscape/sounds
+          python3 tools/preparar_biblioteca.py
+          python3 tools/preparar_voces.py
+          du -sh app/src/main/assets/soundscape/sounds app/src/main/assets/voz 2>/dev/null || true
 
       # Voz de las prácticas con Kokoro-82M (Apache 2.0). Si falla, la app usa la voz del teléfono.
       - uses: actions/setup-python@v5
@@ -47,7 +40,6 @@ jobs:
       - name: Voz de las prácticas
         continue-on-error: true
         run: |
-          sudo apt-get install -y -qq espeak-ng >/dev/null
           pip install -q torch --index-url https://download.pytorch.org/whl/cpu
           pip install -q "kokoro>=0.9.4" soundfile
           python tools/generar_voz.py

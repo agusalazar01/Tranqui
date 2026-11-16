@@ -200,6 +200,17 @@ fun SettingsScreen(nav: Nav) {
         }
         PermissionGuide(enabled, notifOn, batteryOn)
 
+        SectionLabel("Voz de las prácticas")
+        TCard(onClick = { nav.push(Route.VoiceRecord) }) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Body("Grabar mi voz", bold = true)
+                    Small("Leé cada frase y grabala: las meditaciones te guían con tu voz.")
+                }
+                Chevron()
+            }
+        }
+
         SectionLabel("Botón «Entrar igual»")
         Body("Desaparece a los ${window.roundToInt()} segundos")
         Slider(

@@ -149,6 +149,10 @@ fun SoundscapeView(page: String, modifier: Modifier) {
 /** Música de fondo para las prácticas: grabaciones del catálogo que acompañan sin distraer. */
 private val FONDOS = listOf(
     "" to "Sin música",
+    "piano-satie" to "Piano (Satie)",
+    "meditacion-1" to "Meditación I",
+    "meditacion-2" to "Meditación II",
+    "alma-serena" to "Piano cálido",
     "tanpura" to "Tanpura",
     "campanas" to "Campanas",
     "cuenco-grave" to "Cuenco",
@@ -158,7 +162,25 @@ private val FONDOS = listOf(
     "ruido-marron" to "Ruido suave"
 )
 
-private val VOCES = listOf("dora" to "Voz de mujer", "alex" to "Voz de hombre", "" to "Sin voz")
+/** Voces disponibles: las incluidas en la app, la grabada en este teléfono y «sin voz». */
+private fun voces(ctx: Context): List<Pair<String, String>> {
+    val incluidas = runCatching { ctx.assets.list("voz")?.toList() }.getOrNull().orEmpty().filter {
+        runCatching { ctx.assets.list("voz/$it")?.isNotEmpty() }.getOrNull() == true
+    }
+    val lista = mutableListOf<Pair<String, String>>()
+    incluidas.filter { it !in listOf("dora", "alex") }.forEach { lista += it to "Voz de ${it.replaceFirstChar { c -> c.uppercase() }}" }
+    if (myVoiceCount(ctx) > 0) lista += "mia" to "Mi voz"
+    if ("dora" in incluidas) lista += "dora" to "Voz de mujer (IA)"
+    if ("alex" in incluidas) lista += "alex" to "Voz de hombre (IA)"
+    if (incluidas.isEmpty()) lista += "dora" to "Voz del teléfono"
+    lista += "" to "Sin voz"
+    return lista
+}
+
+private fun fondos(ctx: Context): List<Pair<String, String>> {
+    val hay = runCatching { ctx.assets.list("soundscape/sounds")?.toSet() }.getOrNull().orEmpty()
+    return FONDOS.filter { (id, _) -> id.isEmpty() || "$id.ogg" in hay }
+}
 
 @Composable
 fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
@@ -167,8 +189,11 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
     var running by remember { mutableStateOf(false) }
     var done by remember { mutableStateOf(false) }
     var vibrate by remember { mutableStateOf(true) }
-    var voz by remember { mutableStateOf(Store.practiceVoice) }
-    var fondo by remember { mutableStateOf(Store.practiceMusic) }
+    val ctx = LocalContext.current
+    val vocesDisponibles = remember { voces(ctx) }
+    val fondosDisponibles = remember { fondos(ctx) }
+    var voz by remember { mutableStateOf(Store.practiceVoice.takeIf { v -> vocesDisponibles.any { it.first == v } } ?: vocesDisponibles.first().first) }
+    var fondo by remember { mutableStateOf(Store.practiceMusic.takeIf { f -> fondosDisponibles.any { it.first == f } } ?: "") }
 
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 18.dp),
@@ -204,11 +229,12 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
                 }
                 SectionLabel("Voz")
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    VOCES.forEach { (v, nombre) -> Choice(nombre, v == voz) { voz = v; Store.practiceVoice = v } }
+                    vocesDisponibles.forEach { (v, nombre) -> Choice(nombre, v == voz) { voz = v; Store.practiceVoice = v } }
                 }
+                TextButton(onClick = { nav.push(Route.VoiceRecord) }) { Text("Grabar mi voz", color = C.Bosque) }
                 SectionLabel("Música de fondo")
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FONDOS.forEach { (f, nombre) -> Choice(nombre, f == fondo) { fondo = f; Store.practiceMusic = f } }
+                    fondosDisponibles.forEach { (f, nombre) -> Choice(nombre, f == fondo) { fondo = f; Store.practiceMusic = f } }
                 }
                 Small("La música baja sola cuando habla la voz.")
                 if (p.phases.isNotEmpty()) {
@@ -326,15 +352,28 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
  */
 class PracticeAudio(ctx: Context, private val voz: String, private val fondo: String) {
     private val app = ctx.applicationContext
-    private val voiceFiles: Set<String> =
-        if (voz.isEmpty()) emptySet() else (runCatching { app.assets.list("voz/$voz")?.toSet() }.getOrNull() ?: emptySet())
+    private fun assetSet(path: String): Set<String> = runCatching { app.assets.list(path)?.toSet() }.getOrNull() ?: emptySet()
+    private val voiceFiles: Set<String> = if (voz.isEmpty() || voz == "mia") emptySet() else assetSet("voz/$voz")
+    /** Si falta una frase en «Mi voz», se usa la voz incluida (primero una grabada por una persona). */
+    private val fallbackVoice: String? = if (voz != "mia") null else
+        assetSet("voz").firstOrNull { it !in listOf("dora", "alex") && assetSet("voz/$it").isNotEmpty() }
+            ?: "dora".takeIf { assetSet("voz/dora").isNotEmpty() }
+    private val fallbackFiles: Set<String> = fallbackVoice?.let { assetSet("voz/$it") } ?: emptySet()
+    private val myDir = java.io.File(app.filesDir, "mivoz")
     private val music: ExoPlayer? = if (fondo.isEmpty()) null else ExoPlayer.Builder(app).build().apply {
         setMediaItem(MediaItem.fromUri("asset:///soundscape/sounds/$fondo.ogg"))
         repeatMode = Player.REPEAT_MODE_ONE
         volume = 0f
         prepare()
     }
-    private val voice: ExoPlayer? = if (voiceFiles.isEmpty()) null else ExoPlayer.Builder(app).build()
+    private val voice: ExoPlayer? = if (voz.isEmpty()) null else ExoPlayer.Builder(app).build()
+
+    private fun uriFor(key: String): String? = when {
+        voz == "mia" && java.io.File(myDir, "$key.m4a").exists() -> android.net.Uri.fromFile(java.io.File(myDir, "$key.m4a")).toString()
+        "$key.ogg" in voiceFiles -> "asset:///voz/$voz/$key.ogg"
+        "$key.ogg" in fallbackFiles -> "asset:///voz/$fallbackVoice/$key.ogg"
+        else -> null
+    }
     private var tts: TextToSpeech? = null
     @Volatile private var ttsOk = false
     private var fading = false
@@ -345,7 +384,8 @@ class PracticeAudio(ctx: Context, private val voz: String, private val fondo: St
         if (prefs.getBoolean(SoundPlaybackService.KEY_PLAYING, false)) {
             runCatching { app.startService(Intent(app, SoundPlaybackService::class.java).setAction(SoundPlaybackService.ACTION_PAUSE)) }
         }
-        if (voz.isNotEmpty() && voice == null) {
+        if (voz.isNotEmpty()) {
+            // La voz del teléfono queda de respaldo, por si falta alguna frase grabada.
             tts = TextToSpeech(app) { status ->
                 val t = tts ?: return@TextToSpeech
                 if (status != TextToSpeech.SUCCESS) return@TextToSpeech
@@ -383,8 +423,9 @@ class PracticeAudio(ctx: Context, private val voz: String, private val fondo: St
     fun say(text: String) {
         val key = voiceKey(text)
         val v = voice
-        if (v != null && "$key.ogg" in voiceFiles) {
-            v.setMediaItem(MediaItem.fromUri("asset:///voz/$voz/$key.ogg"))
+        val uri = uriFor(key)
+        if (v != null && uri != null) {
+            v.setMediaItem(MediaItem.fromUri(uri))
             v.prepare()
             v.play()
         } else if (ttsOk) {

@@ -21,6 +21,9 @@
 - [x] Sin sonidos sintéticos; escena de Calma quieta.
 - [x] Prácticas más suaves: voz Kokoro, música de fondo que baja con la voz, menos frases, textos nuevos.
 
+- [x] Biblioteca de sonidos con más tipos (hogar, viaje, música suave…) y mejor calidad.
+- [x] Grabar la voz propia para las meditaciones y poder incluirla para todos.
+
 ## Para más adelante
 
 - [x] Grabaciones reales CC0 dentro de la app, con créditos.
@@ -30,7 +33,7 @@
 - [ ] Tiempo de pantalla ahorrado (permiso de uso de apps).
 - [ ] Widget en la pantalla de inicio con los botones de 1, 5 y 15 minutos.
 - [ ] Fuentes propias (Newsreader para títulos, DM Sans para textos) en vez de las del sistema.
-- [ ] Voz grabada (rioplatense) para las meditaciones, en lugar de la voz del teléfono.
+- [ ] Grabar la voz rioplatense con «Grabar mi voz» y subir el ZIP a `voces/`.
 - [ ] Reemplazar los recortes de graphoflife por los originales de Freesound procesados por Tranqui.
 - [ ] Revisión del domingo con aviso automático.
 - [ ] Sección de lectura con temporizador opcional (sugerida en REVISION_DISENO.md).

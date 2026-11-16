@@ -101,7 +101,7 @@ class SoundPlaybackService : MediaSessionService() {
         val timerMinutes = prefs.getInt(KEY_TIMER, 0)
         prefs.edit().putString(KEY_SELECTED, id).remove(KEY_ERROR).apply()
         val metadata = MediaMetadata.Builder()
-            .setTitle(titleOf(id))
+            .setTitle(titleOf(this, id))
             .setArtist("Tranqui · Paisajes sonoros")
             .setExtras(android.os.Bundle().apply { putString("tranqui_sound_id", id) })
             .build()
@@ -165,7 +165,16 @@ class SoundPlaybackService : MediaSessionService() {
         /** Semitonos a factor de tono: +12 es una octava arriba. La velocidad no cambia. */
         fun pitchFactor(semis: Int): Float = Math.pow(2.0, semis / 12.0).toFloat()
 
-        /** Nombre para la notificación: «lluvia-bosque» → «Lluvia bosque». */
-        fun titleOf(id: String): String = id.replace('-', ' ').replaceFirstChar { it.uppercase() }
+        private var titles: Map<String, String>? = null
+
+        /** Nombre para la notificación, tomado del catálogo de sonidos. */
+        fun titleOf(ctx: android.content.Context, id: String): String {
+            val t = titles ?: runCatching {
+                val json = org.json.JSONObject(ctx.assets.open("soundscape/catalogo.json").bufferedReader().use { it.readText() })
+                val arr = json.getJSONArray("sounds")
+                (0 until arr.length()).associate { i -> arr.getJSONObject(i).let { it.getString("id") to it.getString("title") } }
+            }.getOrDefault(emptyMap()).also { titles = it }
+            return t[id] ?: id.replace('-', ' ').replaceFirstChar { it.uppercase() }
+        }
     }
 }

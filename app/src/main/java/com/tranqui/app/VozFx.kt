@@ -28,7 +28,7 @@ data class AjusteVoz(val tono: Float = 0f, val eco: Float = 0.25f, val volumenDb
     fun texto() = "t=$tono;e=$eco;v=$volumenDb;l=${if (limpia) 1 else 0}"
 
     companion object {
-        fun de(s: String?): AjusteVoz {
+        fun desdeTexto(s: String?): AjusteVoz {
             if (s.isNullOrBlank()) return AjusteVoz()
             val m = s.split(";").mapNotNull { p -> p.split("=").takeIf { it.size == 2 }?.let { it[0] to it[1] } }.toMap()
             return AjusteVoz(
@@ -37,7 +37,7 @@ data class AjusteVoz(val tono: Float = 0f, val eco: Float = 0.25f, val volumenDb
             )
         }
 
-        fun de(vozId: String): AjusteVoz = de(Store.items("vozaj").firstOrNull { it.id == vozId }?.text)
+        fun de(vozId: String): AjusteVoz = desdeTexto(Store.items("vozaj").firstOrNull { it.id == vozId }?.text)
 
         fun guardar(vozId: String, a: AjusteVoz) =
             Store.saveItems("vozaj", Store.items("vozaj").filter { it.id != vozId } + Item(vozId, a.texto()))

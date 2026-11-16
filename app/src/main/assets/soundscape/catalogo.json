@@ -10,6 +10,7 @@
   "Cuencos y tonos",
   "Ruido de fondo",
   "Tambor y didgeridoo",
+  "Para hipnosis y trance",
   "En línea"
  ],
  "sounds": [
@@ -961,6 +962,291 @@
    },
    "mode": "bucle",
    "max": 150
+  },
+  {
+   "id": "zumbador-sonajero",
+   "title": "Zumbador y sonajero",
+   "sub": "Bullroarer y sonajero, 15 minutos",
+   "group": "Para hipnosis y trance",
+   "kind": "viento",
+   "credit": "«15 Minute Bullroarer & Rattle», Michael Drake — Internet Archive, CC BY-SA 3.0. Versión recortada y nivelada en Tranqui (misma licencia).",
+   "featured": false,
+   "source": {
+    "type": "url",
+    "url": "https://archive.org/download/ShamanicJourneyRhythmsVolume1/15MinuteBullroarerRattle.ogg"
+   },
+   "mode": "bucle",
+   "max": 300
+  },
+  {
+   "id": "mix-viaje",
+   "title": "Viaje chamánico",
+   "sub": "Tambor rápido, didgeridoo, sonajero y fuego",
+   "group": "Para hipnosis y trance",
+   "kind": "fuego",
+   "credit": "Mezcla de Tranqui con grabaciones reales de la biblioteca (ver cada sonido). Las capas suben y bajan solas.",
+   "featured": false,
+   "source": {
+    "type": "mezcla",
+    "seconds": 306,
+    "capas": [
+     {
+      "id": "tambor-trance",
+      "db": 0,
+      "ciclo": 300,
+      "piso": 0.75,
+      "fase": 0.0
+     },
+     {
+      "id": "didgeridoo-dron",
+      "db": -3,
+      "ciclo": 150,
+      "piso": 0.3,
+      "fase": 0.5
+     },
+     {
+      "id": "zumbador-sonajero",
+      "db": -6,
+      "ciclo": 100,
+      "piso": 0.0,
+      "fase": 0.25
+     },
+     {
+      "id": "fogata",
+      "db": -12,
+      "ciclo": 0,
+      "piso": 1.0,
+      "fase": 0.0
+     }
+    ]
+   },
+   "mode": "bucle",
+   "max": 306
+  },
+  {
+   "id": "mix-descenso",
+   "title": "Descenso profundo",
+   "sub": "Didgeridoo grave, cuenco y un latido lejano",
+   "group": "Para hipnosis y trance",
+   "kind": "cuenco",
+   "credit": "Mezcla de Tranqui con grabaciones reales de la biblioteca (ver cada sonido). Las capas suben y bajan solas.",
+   "featured": false,
+   "source": {
+    "type": "mezcla",
+    "seconds": 306,
+    "capas": [
+     {
+      "id": "didgeridoo-dron",
+      "db": 0,
+      "ciclo": 300,
+      "piso": 0.7,
+      "fase": 0.0
+     },
+     {
+      "id": "cuenco-grave",
+      "db": -4,
+      "ciclo": 75,
+      "piso": 0.15,
+      "fase": 0.0
+     },
+     {
+      "id": "ruido-marron",
+      "db": -14,
+      "ciclo": 0,
+      "piso": 1.0,
+      "fase": 0.0
+     },
+     {
+      "id": "tambor-grave",
+      "db": -9,
+      "ciclo": 150,
+      "piso": 0.0,
+      "fase": 0.5
+     }
+    ]
+   },
+   "mode": "bucle",
+   "max": 306
+  },
+  {
+   "id": "mix-bosque-ritual",
+   "title": "Bosque ritual",
+   "sub": "Tambor lento, bosque, campanas y didgeridoo",
+   "group": "Para hipnosis y trance",
+   "kind": "bosque",
+   "credit": "Mezcla de Tranqui con grabaciones reales de la biblioteca (ver cada sonido). Las capas suben y bajan solas.",
+   "featured": false,
+   "source": {
+    "type": "mezcla",
+    "seconds": 306,
+    "capas": [
+     {
+      "id": "tambor-lento",
+      "db": 0,
+      "ciclo": 300,
+      "piso": 0.6,
+      "fase": 0.0
+     },
+     {
+      "id": "bosque",
+      "db": -6,
+      "ciclo": 0,
+      "piso": 1.0,
+      "fase": 0.0
+     },
+     {
+      "id": "campanas",
+      "db": -11,
+      "ciclo": 100,
+      "piso": 0.0,
+      "fase": 0.3
+     },
+     {
+      "id": "didgeridoo",
+      "db": -7,
+      "ciclo": 150,
+      "piso": 0.2,
+      "fase": 0.6
+     }
+    ]
+   },
+   "mode": "bucle",
+   "max": 306
+  },
+  {
+   "id": "mix-mar-interior",
+   "title": "Mar interior",
+   "sub": "Olas, tanpura, tambor grave y cuenco agudo",
+   "group": "Para hipnosis y trance",
+   "kind": "agua",
+   "credit": "Mezcla de Tranqui con grabaciones reales de la biblioteca (ver cada sonido). Las capas suben y bajan solas.",
+   "featured": false,
+   "source": {
+    "type": "mezcla",
+    "seconds": 306,
+    "capas": [
+     {
+      "id": "olas-suaves",
+      "db": 0,
+      "ciclo": 0,
+      "piso": 1.0,
+      "fase": 0.0
+     },
+     {
+      "id": "tanpura",
+      "db": -5,
+      "ciclo": 150,
+      "piso": 0.4,
+      "fase": 0.0
+     },
+     {
+      "id": "tambor-grave",
+      "db": -8,
+      "ciclo": 75,
+      "piso": 0.25,
+      "fase": 0.5
+     },
+     {
+      "id": "cuenco-agudo",
+      "db": -14,
+      "ciclo": 100,
+      "piso": 0.0,
+      "fase": 0.75
+     }
+    ]
+   },
+   "mode": "bucle",
+   "max": 306
+  },
+  {
+   "id": "mix-fogon",
+   "title": "Noche de fogón",
+   "sub": "Fuego, grillos, tambor de cuero y didgeridoo",
+   "group": "Para hipnosis y trance",
+   "kind": "fuego",
+   "credit": "Mezcla de Tranqui con grabaciones reales de la biblioteca (ver cada sonido). Las capas suben y bajan solas.",
+   "featured": false,
+   "source": {
+    "type": "mezcla",
+    "seconds": 306,
+    "capas": [
+     {
+      "id": "fogata",
+      "db": -2,
+      "ciclo": 0,
+      "piso": 1.0,
+      "fase": 0.0
+     },
+     {
+      "id": "grillos",
+      "db": -6,
+      "ciclo": 0,
+      "piso": 1.0,
+      "fase": 0.0
+     },
+     {
+      "id": "tambor-chaman",
+      "db": -3,
+      "ciclo": 150,
+      "piso": 0.3,
+      "fase": 0.0
+     },
+     {
+      "id": "didgeridoo-ritmo",
+      "db": -8,
+      "ciclo": 300,
+      "piso": 0.0,
+      "fase": 0.5
+     }
+    ]
+   },
+   "mode": "bucle",
+   "max": 306
+  },
+  {
+   "id": "mix-tierra",
+   "title": "Tierra que late",
+   "sub": "Varios tambores y didgeridoo con ritmo, con viento",
+   "group": "Para hipnosis y trance",
+   "kind": "viento",
+   "credit": "Mezcla de Tranqui con grabaciones reales de la biblioteca (ver cada sonido). Las capas suben y bajan solas.",
+   "featured": false,
+   "source": {
+    "type": "mezcla",
+    "seconds": 306,
+    "capas": [
+     {
+      "id": "tambor-trance",
+      "db": -2,
+      "ciclo": 300,
+      "piso": 0.4,
+      "fase": 0.0
+     },
+     {
+      "id": "didgeridoo-ritmo",
+      "db": -4,
+      "ciclo": 150,
+      "piso": 0.6,
+      "fase": 0.0
+     },
+     {
+      "id": "tambor-chaman",
+      "db": -4,
+      "ciclo": 100,
+      "piso": 0.0,
+      "fase": 0.5
+     },
+     {
+      "id": "viento",
+      "db": -12,
+      "ciclo": 0,
+      "piso": 1.0,
+      "fase": 0.0
+     }
+    ]
+   },
+   "mode": "bucle",
+   "max": 306
   }
  ]
 }

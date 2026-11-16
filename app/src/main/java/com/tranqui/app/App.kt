@@ -77,6 +77,7 @@ sealed interface Route {
     data object Settings : Route
     data class VoiceRecord(val practiceId: String, val vozId: String) : Route
     data object Voices : Route
+    data class VozAjuste(val id: String) : Route
 }
 
 class Nav(
@@ -190,6 +191,7 @@ private fun Detail(top: Route, nav: Nav) {
         Route.Settings -> SettingsScreen(nav)
         is Route.VoiceRecord -> VoiceRecordScreen(top.practiceId, top.vozId, nav)
         Route.Voices -> VocesScreen(nav)
+        is Route.VozAjuste -> VozAjusteScreen(top.id, nav)
     }
 }
 

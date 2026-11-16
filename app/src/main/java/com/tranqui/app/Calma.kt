@@ -237,7 +237,14 @@ private val FONDOS = listOf(
     "tambor-chaman" to "Tambor chamánico",
     "didgeridoo" to "Didgeridoo",
     "didgeridoo-dron" to "Didgeridoo grave",
-    "didgeridoo-ritmo" to "Didgeridoo con ritmo"
+    "didgeridoo-ritmo" to "Didgeridoo con ritmo",
+    "zumbador-sonajero" to "Zumbador y sonajero",
+    "mix-viaje" to "Viaje chamánico",
+    "mix-descenso" to "Descenso profundo",
+    "mix-bosque-ritual" to "Bosque ritual",
+    "mix-mar-interior" to "Mar interior",
+    "mix-fogon" to "Noche de fogón",
+    "mix-tierra" to "Tierra que late"
 )
 
 /** Voz de las prácticas: «Silencio» (solo texto en pantalla) o «Mi voz» (grabada por vos). */
@@ -339,7 +346,18 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
                 Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     fondosDisponibles.forEach { (f, nombre) -> Choice(nombre, f == fondo) { fondo = f; Store.practiceMusic = f } }
                 }
-                Small("La música baja sola cuando habla la voz.")
+                if (fondo.isNotEmpty()) {
+                    var vol by remember { mutableFloatStateOf(Store.fondoVolumen) }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Small("Volumen del fondo", Modifier.width(130.dp))
+                        Slider(
+                            value = vol, onValueChange = { vol = it }, onValueChangeFinished = { Store.fondoVolumen = vol },
+                            valueRange = 0.1f..1f, modifier = Modifier.weight(1f),
+                            colors = SliderDefaults.colors(thumbColor = C.Bosque, activeTrackColor = C.Musgo)
+                        )
+                    }
+                }
+                Small(if (voz.isNotEmpty()) "El fondo baja solo cuando habla la voz. La voz se ajusta en «Tus voces» → «Cómo suena»." else "El fondo baja solo cuando habla la voz.")
                 if (p.allPhases.isNotEmpty()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Body("Vibrar en cada cambio", Modifier.weight(1f))
@@ -505,14 +523,15 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
  */
 class PracticeAudio(ctx: Context, private val voz: String, private val fondo: String) {
     private val app = ctx.applicationContext
-    private val myDir = java.io.File(app.filesDir, "voces/$voz")
     private val music: ExoPlayer? = if (fondo.isEmpty()) null else ExoPlayer.Builder(app).build().apply {
         setMediaItem(MediaItem.fromUri("asset:///soundscape/sounds/$fondo.ogg"))
         repeatMode = Player.REPEAT_MODE_ONE
         volume = 0f
         prepare()
     }
-    private val voice: ExoPlayer? = if (voz.isEmpty()) null else ExoPlayer.Builder(app).build()
+    private val voice: VozFx? = if (voz.isEmpty()) null else VozFx(app, voz)
+    /** Volumen del fondo elegido por vos (0 a 1); baja a menos de la mitad mientras habla la voz. */
+    private val fondoVol = Store.fondoVolumen
     private var fading = false
 
     init {
@@ -524,14 +543,7 @@ class PracticeAudio(ctx: Context, private val voz: String, private val fondo: St
         music?.play()
     }
 
-    /** Solo tu propia grabación, guardada en este celular. Si falta una frase, no se dice: queda escrita en pantalla. */
-    private fun uriFor(key: String): String? = when {
-        java.io.File(myDir, "$key.m4a").exists() -> android.net.Uri.fromFile(java.io.File(myDir, "$key.m4a")).toString()
-        else -> null
-    }
-
-    private fun speaking(): Boolean =
-        voice?.let { it.isPlaying || it.playbackState == Player.STATE_BUFFERING } ?: false
+    private fun speaking(): Boolean = voice?.hablando() ?: false
 
     /** Mezcla suave: el fondo entra despacio, baja cuando habla la voz y vuelve a subir. */
     suspend fun run() {
@@ -539,8 +551,8 @@ class PracticeAudio(ctx: Context, private val voz: String, private val fondo: St
         while (true) {
             val target = when {
                 fading -> 0f
-                speaking() -> 0.12f
-                else -> 0.3f
+                speaking() -> fondoVol * 0.4f
+                else -> fondoVol
             }
             m.volume += (target - m.volume) * 0.08f
             delay(100)
@@ -549,12 +561,8 @@ class PracticeAudio(ctx: Context, private val voz: String, private val fondo: St
 
     /** Devuelve true si hay una grabación para esa frase y empezó a sonar. */
     fun say(text: String): Boolean {
-        val v = voice ?: return false
-        val uri = uriFor(voiceKey(text)) ?: return false
-        v.setMediaItem(MediaItem.fromUri(uri))
-        v.prepare()
-        v.play()
-        return true
+        // Solo tu grabación, guardada en este celular. Si falta una frase, queda escrita en pantalla.
+        return voice?.decir(text) ?: false
     }
 
     /** Dice la frase y espera a que termine; sin grabación, deja tiempo para leerla. */

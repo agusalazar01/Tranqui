@@ -34,6 +34,8 @@ def urls(fuente):
         n = fuente["id"]
         return [f"https://bigsoundbank.com/UPLOAD/{ext}/{n}.{ext}" for ext in ("flac", "wav")] + [
             f"https://bigsoundbank.com/UPLOAD/mp3/{n}.mp3"]
+    if fuente["type"] == "url":
+        return [fuente["url"]]
     if fuente["type"] == "incompetech":
         t = urllib.parse.quote(fuente["title"])
         return [f"https://incompetech.com/music/royalty-free/mp3-royaltyfree/{t}.mp3"]
@@ -96,6 +98,36 @@ def armar_ritmo(fuente, destino_wav, tmp, sr=48000):
                     "-af", "aecho=0.6:0.5:60:0.25", "-ac", "2", destino_wav], check=True)
 
 
+def armar_mezcla(fuente, destino_wav, tmp, sr=48000):
+    """
+    Mezcla varias grabaciones ya preparadas. Cada capa sube y baja sola con un ciclo lento
+    (piso = volumen mínimo); los ciclos dividen la duración total, así el bucle no se nota.
+    """
+    import math
+    import numpy as np
+    n = int(sr * fuente["seconds"])
+    t = np.arange(n, dtype=np.float32) / sr
+    mezcla = np.zeros((n, 2), dtype=np.float32)
+    for c in fuente["capas"]:
+        archivo = os.path.join(SALIDA, c["id"] + ".ogg")
+        if not os.path.exists(archivo):
+            raise IOError("falta la capa " + c["id"])
+        raw = subprocess.run(["ffmpeg", "-v", "error", "-i", archivo, "-ac", "2", "-ar", str(sr), "-f", "f32le", "-"],
+                             check=True, capture_output=True).stdout
+        a = np.frombuffer(raw, dtype=np.float32).reshape(-1, 2)
+        a = np.tile(a, (n // len(a) + 1, 1))[:n]
+        g = 10 ** (c.get("db", 0) / 20)
+        if c.get("ciclo"):
+            piso = c.get("piso", 1.0)
+            env = piso + (1 - piso) * (0.5 - 0.5 * np.cos(2 * math.pi * (t / c["ciclo"] + c.get("fase", 0))))
+            a = a * env[:, None]
+        mezcla += a * g
+    mezcla /= (np.abs(mezcla).max() or 1) / 0.85
+    raw = os.path.join(tmp, "mezcla.f32")
+    mezcla.astype(np.float32).tofile(raw)
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "f32le", "-ar", str(sr), "-ac", "2", "-i", raw, destino_wav], check=True)
+
+
 def bajar(url, destino, minimo=20_000):
     req = urllib.request.Request(url, headers=UA)
     with urllib.request.urlopen(req, timeout=120) as r, open(destino, "wb") as f:
@@ -109,7 +141,9 @@ def bajar(url, destino, minimo=20_000):
 def main():
     cat = json.load(open(CATALOGO, encoding="utf-8"))
     ok, fallas = 0, []
-    for s in cat["sounds"]:
+    # Las mezclas van al final: usan sonidos que se preparan antes.
+    orden = sorted(cat["sounds"], key=lambda x: x["source"]["type"] == "mezcla")
+    for s in orden:
         if s["source"]["type"] in ("local", "online"):  # los «en línea» se escuchan por internet
             continue
         destino = os.path.join(SALIDA, s["id"] + ".ogg")
@@ -117,13 +151,16 @@ def main():
             continue
         hecho = False
         with tempfile.TemporaryDirectory() as tmp:
-            if s["source"]["type"] == "freesound_ritmo":
+            if s["source"]["type"] in ("freesound_ritmo", "mezcla"):
                 try:
-                    wav = os.path.join(tmp, "ritmo.wav")
-                    armar_ritmo(s["source"], wav, tmp)
+                    wav = os.path.join(tmp, "armado.wav")
+                    if s["source"]["type"] == "mezcla":
+                        armar_mezcla(s["source"], wav, tmp)
+                    else:
+                        armar_ritmo(s["source"], wav, tmp)
                     subprocess.run([SCRIPT, wav, destino, str(s.get("max", 150)), s.get("mode", "bucle"),
                                     str(s.get("lufs", -23))], check=True)
-                    print(f"OK  {s['id']:18s} ← ritmo armado")
+                    print(f"OK  {s['id']:18s} ← {s['source']['type']} armado")
                     ok += 1
                 except Exception as e:
                     print(f"..  {s['id']:18s} ritmo: {e}")

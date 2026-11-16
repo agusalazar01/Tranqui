@@ -1,3 +1,9 @@
+# Próxima versión (sin publicar)
+
+- «Cómo suena» para cada voz: tono más grave, eco suave, volumen extra de la voz y limpieza de graves. Se prueba con una frase grabada (con el fondo, si querés) y no modifica la grabación.
+- Volumen del fondo regulable en cada práctica; por defecto, más alto que antes.
+- Nuevo grupo «Para hipnosis y trance»: zumbador y sonajero (Michael Drake, 15 min) y 6 mezclas con varias grabaciones reales que suben y bajan solas: Viaje chamánico, Descenso profundo, Bosque ritual, Mar interior, Noche de fogón y Tierra que late.
+
 # Tranqui 0.5.2
 
 - «Tu día» en Hoy: una línea suave con lo que tiene hora (tus bloques de tiempo) y una marca de «ahora». Lo que pasó se aclara, lo que está en curso tiene «Empezar ahora», y abajo aparece «Cuando puedas» con lo que no tiene hora. Sin números ni estadísticas.

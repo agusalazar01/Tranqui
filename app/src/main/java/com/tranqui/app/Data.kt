@@ -178,6 +178,10 @@ object Store {
         }
 
     /** Música de fondo de las prácticas: id de una grabación del catálogo, o "" sin música. */
+    var fondoVolumen: Float
+        get() = p.getFloat("fondo_vol", 0.5f)
+        set(v) { p.edit().putFloat("fondo_vol", v).apply() }
+
     var practiceMusic: String
         get() = p.getString("practice_music", "tanpura") ?: "tanpura"
         set(v) {

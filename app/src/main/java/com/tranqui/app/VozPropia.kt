@@ -216,7 +216,10 @@ fun VoiceRecordScreen(practiceId: String, vozId: String, nav: Nav) {
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         BackBar(practica.name) { nav.pop() }
-        Small("Voz: ${Voces.name(vozId)}", color = C.Musgo)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Small("Voz: ${Voces.name(vozId)}", Modifier.weight(1f), color = C.Musgo)
+            TextButton(onClick = { nav.push(Route.VozAjuste(vozId)) }) { Text("Cómo suena (tono, eco)", color = C.Bosque) }
+        }
         Small(
             "Grabá solo las frases de esta práctica. Buscá un lugar callado, sostené el celular a un palmo de la boca " +
                 "y hablá lento y suave, como si acompañaras a alguien."
@@ -380,6 +383,7 @@ fun VocesScreen(nav: Nav) {
                         Body(v.text, bold = true)
                         Small(if (n == 0) "Sin grabaciones" else "$n frases grabadas")
                     }
+                    TextButton(onClick = { nav.push(Route.VozAjuste(v.id)) }) { Text("Cómo suena", color = C.Bosque) }
                     TextButton(onClick = { borrar = v }) { Text("Borrar", color = C.ArcillaOscura) }
                 }
             }

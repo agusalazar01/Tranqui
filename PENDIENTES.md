@@ -16,6 +16,11 @@
 - [x] El reproductor de Calma ya no corta la última línea.
 - [x] Aviso si querés guardar un objetivo sin nombre.
 
+## Listo para la próxima versión (sin publicar)
+
+- [x] Sin sonidos sintéticos; escena de Calma quieta.
+- [x] Prácticas más suaves: voz Kokoro, música de fondo que baja con la voz, menos frases, textos nuevos.
+
 ## Para más adelante
 
 - [x] Grabaciones reales CC0 dentro de la app, con créditos.
@@ -26,7 +31,6 @@
 - [ ] Widget en la pantalla de inicio con los botones de 1, 5 y 15 minutos.
 - [ ] Fuentes propias (Newsreader para títulos, DM Sans para textos) en vez de las del sistema.
 - [ ] Voz grabada (rioplatense) para las meditaciones, en lugar de la voz del teléfono.
-- [ ] Revisar los sonidos sintéticos (Bruma, Cuencos…) y decidir si quedan.
 - [ ] Reemplazar los recortes de graphoflife por los originales de Freesound procesados por Tranqui.
 - [ ] Revisión del domingo con aviso automático.
 - [ ] Sección de lectura con temporizador opcional (sugerida en REVISION_DISENO.md).

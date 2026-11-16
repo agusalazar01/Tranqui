@@ -39,6 +39,20 @@ jobs:
           done < tools/bigsoundbank.txt
           ls -la app/src/main/assets/soundscape/sounds
 
+      # Voz de las prácticas con Kokoro-82M (Apache 2.0). Si falla, la app usa la voz del teléfono.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Voz de las prácticas
+        continue-on-error: true
+        run: |
+          sudo apt-get install -y -qq espeak-ng >/dev/null
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -q "kokoro>=0.9.4" soundfile
+          python tools/generar_voz.py
+          du -sh app/src/main/assets/voz/* || true
+
       - name: Preparar la clave de firma
         id: firma
         env:

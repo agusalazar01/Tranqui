@@ -150,10 +150,18 @@ object Store {
             p.edit().putInt("speed", v).apply(); bump()
         }
 
-    var voiceGuide: Boolean
-        get() = p.getBoolean("voice_guide", true)
+    /** Voz de las prácticas: "dora", "alex" o "" (sin voz). */
+    var practiceVoice: String
+        get() = p.getString("practice_voice", "dora") ?: "dora"
         set(v) {
-            p.edit().putBoolean("voice_guide", v).apply()
+            p.edit().putString("practice_voice", v).apply()
+        }
+
+    /** Música de fondo de las prácticas: id de una grabación del catálogo, o "" sin música. */
+    var practiceMusic: String
+        get() = p.getString("practice_music", "tanpura") ?: "tanpura"
+        set(v) {
+            p.edit().putString("practice_music", v).apply()
         }
 
     // Permiso temporal después de "Entrar igual"

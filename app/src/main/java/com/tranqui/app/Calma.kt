@@ -3,6 +3,15 @@ package com.tranqui.app
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.speech.tts.TextToSpeech
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.horizontalScroll
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import kotlinx.coroutines.withTimeoutOrNull
+import java.security.MessageDigest
+import java.util.Locale
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -33,32 +42,13 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CalmaScreen(nav: Nav, modifier: Modifier = Modifier) {
-    val ctx = LocalContext.current
-    var synthetic by rememberSaveable { mutableStateOf(false) }
     Column(
         modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         ScreenTitle("Calma", "Sonidos y prácticas para bajar un cambio")
         SectionLabel("Paisajes sonoros")
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Choice("Grabaciones", !synthetic) { synthetic = false }
-            Choice("Sintéticos · prueba", synthetic) {
-                // Para no mezclar: pausa la grabación antes de abrir los sintéticos.
-                ctx.startService(Intent(ctx, SoundPlaybackService::class.java).setAction(SoundPlaybackService.ACTION_PAUSE))
-                synthetic = true
-            }
-        }
-        if (synthetic) {
-            Small("Versión en prueba: estos sonidos se generan en el momento y suenan solo mientras estás en Calma.")
-            key("sinteticos") {
-                SoundscapeView("sinteticos.html", Modifier.fillMaxWidth().height(600.dp).clip(RoundedCornerShape(28.dp)), fixedHeight = true)
-            }
-        } else {
-            key("grabaciones") {
-                SoundscapeView("index.html", Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)))
-            }
-        }
+        SoundscapeView("index.html", Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)))
         SectionLabel("Prácticas guiadas")
         PRACTICES.forEach { p ->
             TCard(onClick = { nav.push(Route.PracticeRun(p.id)) }) {
@@ -130,7 +120,7 @@ class SoundBridge(private val ctx: Context, private val onHeight: (Int) -> Unit 
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun SoundscapeView(page: String, modifier: Modifier, fixedHeight: Boolean = false) {
+fun SoundscapeView(page: String, modifier: Modifier) {
     val ctx = LocalContext.current
     var pageHeight by remember { mutableIntStateOf(760) }
     val web = remember {
@@ -153,8 +143,22 @@ fun SoundscapeView(page: String, modifier: Modifier, fixedHeight: Boolean = fals
     DisposableEffect(Unit) {
         onDispose { web.destroy() }
     }
-    AndroidView(factory = { web }, modifier = if (fixedHeight) modifier else modifier.height(pageHeight.dp))
+    AndroidView(factory = { web }, modifier = modifier.height(pageHeight.dp))
 }
+
+/** Música de fondo para las prácticas: grabaciones del catálogo que acompañan sin distraer. */
+private val FONDOS = listOf(
+    "" to "Sin música",
+    "tanpura" to "Tanpura",
+    "campanas" to "Campanas",
+    "cuenco-grave" to "Cuenco",
+    "lluvia-bosque" to "Lluvia",
+    "arroyo" to "Arroyo",
+    "olas-suaves" to "Olas",
+    "ruido-marron" to "Ruido suave"
+)
+
+private val VOCES = listOf("dora" to "Voz de mujer", "alex" to "Voz de hombre", "" to "Sin voz")
 
 @Composable
 fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
@@ -163,7 +167,8 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
     var running by remember { mutableStateOf(false) }
     var done by remember { mutableStateOf(false) }
     var vibrate by remember { mutableStateOf(true) }
-    var voice by remember { mutableStateOf(Store.voiceGuide) }
+    var voz by remember { mutableStateOf(Store.practiceVoice) }
+    var fondo by remember { mutableStateOf(Store.practiceMusic) }
 
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 18.dp),
@@ -172,7 +177,7 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
         BackBar(p.name) { nav.pop() }
         when {
             running -> {
-                PracticeRunner(p, minutes, vibrate, voice) {
+                PracticeRunner(p, minutes, vibrate, voz, fondo) {
                     Store.addSession(Session(Store.today(), null, p.name, minutes))
                     running = false
                     done = true
@@ -197,6 +202,15 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     p.options.forEach { m -> Choice("$m min", m == minutes) { minutes = m } }
                 }
+                SectionLabel("Voz")
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    VOCES.forEach { (v, nombre) -> Choice(nombre, v == voz) { voz = v; Store.practiceVoice = v } }
+                }
+                SectionLabel("Música de fondo")
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FONDOS.forEach { (f, nombre) -> Choice(nombre, f == fondo) { fondo = f; Store.practiceMusic = f } }
+                }
+                Small("La música baja sola cuando habla la voz.")
                 if (p.phases.isNotEmpty()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Body("Vibrar en cada cambio", Modifier.weight(1f))
@@ -206,16 +220,6 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
                         )
                     }
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Body("Guía por voz")
-                        Small("Usa la voz de tu teléfono, sin internet. Así podés seguirla con los ojos cerrados.")
-                    }
-                    Switch(
-                        checked = voice, onCheckedChange = { voice = it; Store.voiceGuide = it },
-                        colors = SwitchDefaults.colors(checkedTrackColor = C.Bosque)
-                    )
-                }
                 PrimaryButton("Empezar") { running = true }
             }
         }
@@ -223,18 +227,18 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
 }
 
 @Composable
-private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voice: Boolean, onDone: () -> Unit) {
+private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: String, fondo: String, onDone: () -> Unit) {
     val ctx = LocalContext.current
     val view = LocalView.current
-    val guide = remember { if (voice) VoiceGuide(ctx) else null }
-    DisposableEffect(Unit) { onDispose { guide?.close() } }
     // La pantalla no se apaga durante la práctica: si se apagara, la guía se frenaría.
     DisposableEffect(Unit) {
         view.keepScreenOn = true
         onDispose { view.keepScreenOn = false }
     }
-    val scale = remember { Animatable(0.75f) }
-    var label by remember { mutableStateOf("Preparate…") }
+    val audio = remember { PracticeAudio(ctx, voz, fondo) }
+    DisposableEffect(Unit) { onDispose { audio.release() } }
+    val scale = remember { Animatable(0.8f) }
+    var label by remember { mutableStateOf("Acomodate") }
     var remaining by remember { mutableIntStateOf(minutes * 60) }
 
     LaunchedEffect(Unit) {
@@ -245,37 +249,56 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voice: B
                 delay(500)
             }
         }
-        guide?.awaitReady()
+        val mixer = launch { audio.run() }
+        delay(1500) // la música entra sola antes de que hable nadie
         if (p.phases.isNotEmpty()) {
-            guide?.say("Vamos a respirar juntos. Seguí mi voz.")
-            delay(if (guide != null) 3500 else 0)
+            audio.sayAndWait(VOZ_INICIO_RESPIRAR)
+            delay(1000)
+            var cycle = 0
             while (System.currentTimeMillis() < end) {
                 for (ph in p.phases) {
                     label = ph.label
-                    guide?.say(ph.say)
-                    if (vibrate) buzz(ctx, 40)
+                    // La voz acompaña las primeras vueltas y después solo de vez en cuando:
+                    // el círculo y la vibración alcanzan para seguir el ritmo.
+                    val say = ph.say
+                    if (say != null && (cycle < 3 || cycle % 5 == 0)) audio.say(say)
+                    if (vibrate && say != null) buzz(ctx, 25)
                     scale.animateTo(ph.scale, tween((ph.seconds * 1000).toInt(), easing = FastOutSlowInEasing))
                 }
+                cycle++
+                if (cycle == 3) audio.say(VOZ_SEGUI)
             }
         } else {
             val breathing = launch {
                 while (true) {
-                    scale.animateTo(1.05f, tween(5000, easing = FastOutSlowInEasing))
-                    scale.animateTo(0.85f, tween(5000, easing = FastOutSlowInEasing))
+                    scale.animateTo(1.04f, tween(6000, easing = FastOutSlowInEasing))
+                    scale.animateTo(0.86f, tween(6000, easing = FastOutSlowInEasing))
                 }
             }
-            val per = minutes * 60_000L / p.steps.size
+            audio.sayAndWait(VOZ_INICIO_GUIA)
+            delay(2000)
+            val per = (end - System.currentTimeMillis()).coerceAtLeast(10_000L) / p.steps.size
             for (s in p.steps) {
+                val stepEnd = System.currentTimeMillis() + per
                 label = s
-                guide?.say(s)
-                delay(per)
+                // «…» = pausa: primero se tensa, unos segundos después la voz dice cuándo soltar.
+                val parts = s.split("…").map { it.trim() }.filter { it.isNotEmpty() }
+                parts.forEachIndexed { i, part ->
+                    audio.sayAndWait(part)
+                    if (i < parts.lastIndex) delay(5000)
+                }
+                delay((stepEnd - System.currentTimeMillis()).coerceAtLeast(0))
             }
             breathing.cancel()
         }
         clock.cancel()
-        buzz(ctx, 200)
-        guide?.say("Listo. Cuando quieras, volvé despacio.")
-        delay(if (guide != null) 3000 else 0)
+        label = "Muy bien"
+        VOZ_CIERRE.split("…").map { it.trim() }.filter { it.isNotEmpty() }.forEach {
+            audio.sayAndWait(it)
+            delay(1500)
+        }
+        audio.fadeOut()
+        mixer.cancel()
         onDone()
     }
 
@@ -285,53 +308,119 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voice: B
             Mist(Modifier.fillMaxSize(), listOf(C.Salvia, C.Musgo, C.Salvia), count = 3, alpha = 0.5f, periodMs = 50000)
         }
         Spacer(Modifier.height(20.dp))
-        SerifText(label, 26, align = TextAlign.Center)
+        // Las frases cambian con un fundido lento, sin saltos.
+        Crossfade(targetState = label, animationSpec = tween(1400), label = "frase") { t ->
+            SerifText(t, 24, Modifier.fillMaxWidth(), align = TextAlign.Center)
+        }
         Spacer(Modifier.height(8.dp))
         Small("%d:%02d restantes".format(remaining / 60, remaining % 60))
     }
 }
 
 /**
- * Guía por voz con el texto a voz del teléfono: no incluye grabaciones, funciona sin internet
- * y no trae problemas de licencias. Habla lento y con un tono un poco más grave.
+ * Audio de las prácticas: voz y música de fondo.
+ * - Voz: grabaciones generadas con Kokoro (Apache 2.0) en assets/voz/<voz>/; si no están,
+ *   usa la voz del teléfono, más lenta y grave de lo normal.
+ * - Música: una grabación del catálogo en bucle, que baja sola mientras habla la voz.
+ * Todo se usa desde el hilo principal (ExoPlayer lo necesita así).
  */
-class VoiceGuide(ctx: Context) {
-    private val ready = kotlinx.coroutines.CompletableDeferred<Boolean>()
-    private var tts: android.speech.tts.TextToSpeech? = null
-    @Volatile private var ok = false
+class PracticeAudio(ctx: Context, private val voz: String, private val fondo: String) {
+    private val app = ctx.applicationContext
+    private val voiceFiles: Set<String> =
+        if (voz.isEmpty()) emptySet() else (runCatching { app.assets.list("voz/$voz")?.toSet() }.getOrNull() ?: emptySet())
+    private val music: ExoPlayer? = if (fondo.isEmpty()) null else ExoPlayer.Builder(app).build().apply {
+        setMediaItem(MediaItem.fromUri("asset:///soundscape/sounds/$fondo.ogg"))
+        repeatMode = Player.REPEAT_MODE_ONE
+        volume = 0f
+        prepare()
+    }
+    private val voice: ExoPlayer? = if (voiceFiles.isEmpty()) null else ExoPlayer.Builder(app).build()
+    private var tts: TextToSpeech? = null
+    @Volatile private var ttsOk = false
+    private var fading = false
 
     init {
-        tts = android.speech.tts.TextToSpeech(ctx.applicationContext) { status ->
-            val t = tts
-            if (status == android.speech.tts.TextToSpeech.SUCCESS && t != null) {
-                val wanted = listOf(java.util.Locale("es", "AR"), java.util.Locale("es", "UY"), java.util.Locale("es", "US"), java.util.Locale("es", "MX"), java.util.Locale("es", "ES"), java.util.Locale("es"))
-                val ok = wanted.firstOrNull { t.isLanguageAvailable(it) >= android.speech.tts.TextToSpeech.LANG_AVAILABLE }
-                if (ok != null) t.language = ok
-                t.setSpeechRate(0.82f)
-                t.setPitch(0.95f)
-                this.ok = ok != null
-                ready.complete(ok != null)
-            } else {
-                ready.complete(false)
+        // Si había un sonido de Calma sonando, se pausa para no mezclar.
+        val prefs = app.getSharedPreferences(SoundPlaybackService.PREFS, Context.MODE_PRIVATE)
+        if (prefs.getBoolean(SoundPlaybackService.KEY_PLAYING, false)) {
+            runCatching { app.startService(Intent(app, SoundPlaybackService::class.java).setAction(SoundPlaybackService.ACTION_PAUSE)) }
+        }
+        if (voz.isNotEmpty() && voice == null) {
+            tts = TextToSpeech(app) { status ->
+                val t = tts ?: return@TextToSpeech
+                if (status != TextToSpeech.SUCCESS) return@TextToSpeech
+                // La voz en español de mejor calidad que funcione sin internet.
+                val best = runCatching {
+                    t.voices.filter { it.locale.language == "es" && !it.isNetworkConnectionRequired }
+                        .maxByOrNull { it.quality + if (it.locale.country in listOf("AR", "UY")) 1000 else 0 }
+                }.getOrNull()
+                if (best != null) t.voice = best else t.language = Locale("es")
+                t.setSpeechRate(0.78f)
+                t.setPitch(0.92f)
+                ttsOk = true
             }
         }
+        music?.play()
     }
 
-    /** Espera a que la voz esté lista (como mucho 3 segundos). */
-    suspend fun awaitReady() {
-        kotlinx.coroutines.withTimeoutOrNull(3000) { ready.await() }
+    private fun speaking(): Boolean =
+        (voice?.let { it.isPlaying || it.playbackState == Player.STATE_BUFFERING } ?: false) || (tts?.isSpeaking ?: false)
+
+    /** Mezcla suave: la música entra despacio, baja cuando habla la voz y vuelve a subir. */
+    suspend fun run() {
+        val m = music ?: return
+        while (true) {
+            val target = when {
+                fading -> 0f
+                speaking() -> 0.12f
+                else -> 0.3f
+            }
+            m.volume += (target - m.volume) * 0.08f
+            delay(100)
+        }
     }
 
     fun say(text: String) {
-        if (ok) {
-            // Saca los «…» para que no los lea como pausas raras.
-            tts?.speak(text.replace("…", ","), android.speech.tts.TextToSpeech.QUEUE_FLUSH, null, "tranqui")
+        val key = voiceKey(text)
+        val v = voice
+        if (v != null && "$key.ogg" in voiceFiles) {
+            v.setMediaItem(MediaItem.fromUri("asset:///voz/$voz/$key.ogg"))
+            v.prepare()
+            v.play()
+        } else if (ttsOk) {
+            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, key)
         }
     }
 
-    fun close() {
+    /** Dice la frase y espera a que termine (como mucho 20 segundos). */
+    suspend fun sayAndWait(text: String) {
+        if (voz.isEmpty()) {
+            delay(1500L + text.length * 45L) // sin voz: tiempo para leerla
+            return
+        }
+        say(text)
+        delay(400)
+        withTimeoutOrNull(20_000) { while (speaking()) delay(120) }
+    }
+
+    /** Baja la música despacio hasta silenciarla. */
+    suspend fun fadeOut() {
+        fading = true
+        val m = music ?: return
+        withTimeoutOrNull(7000) { while (m.volume > 0.01f) { m.volume *= 0.9f; delay(100) } }
+        m.pause()
+    }
+
+    fun release() {
+        music?.release()
+        voice?.release()
         tts?.stop()
         tts?.shutdown()
         tts = null
     }
 }
+
+/** La misma clave que usa tools/generar_voz.py para nombrar cada archivo de voz. */
+fun voiceKey(text: String): String =
+    MessageDigest.getInstance("SHA-1").digest(text.trim().toByteArray(Charsets.UTF_8))
+        .joinToString("") { "%02x".format(it) }.take(12)

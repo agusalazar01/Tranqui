@@ -14,3 +14,6 @@ keystore.properties
 *.keystore
 keystore/
 secretos/
+
+# La voz se genera al compilar (tools/generar_voz.py)
+app/src/main/assets/voz/

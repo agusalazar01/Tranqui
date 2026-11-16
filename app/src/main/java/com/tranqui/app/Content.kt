@@ -160,7 +160,11 @@ val METHODS = listOf(
     )
 )
 
-data class Phase(val label: String, val seconds: Float, val scale: Float, val say: String = label)
+/**
+ * Una fase de una respiración guiada. [say] es lo que dice la voz (null = no dice nada,
+ * solo cambia el círculo). [label] es lo que se lee en pantalla.
+ */
+data class Phase(val label: String, val seconds: Float, val scale: Float, val say: String? = label)
 
 data class Practice(
     val id: String, val name: String, val durationLabel: String, val tag: String,
@@ -169,14 +173,25 @@ data class Practice(
     val phases: List<Phase> = emptyList(), val steps: List<String> = emptyList()
 )
 
+/** Frases fijas de la voz: inicio y cierre de cada práctica. */
+const val VOZ_INICIO_RESPIRAR = "Vamos a respirar juntos. Seguí el ritmo del círculo y de mi voz."
+const val VOZ_INICIO_GUIA = "Acomodate. Empezamos en un momento."
+const val VOZ_SEGUI = "Seguí así, a tu ritmo."
+const val VOZ_CIERRE = "Muy bien. Quedate un momento así… y cuando quieras, volvé despacio."
+
 val PRACTICES = listOf(
     Practice(
         "suspiro", "Suspiro cíclico", "1 a 5 min", "Fuerte",
         "Dos inhalaciones por la nariz y una exhalación larga por la boca.",
         "5 minutos por día mejoraron el ánimo y bajaron la frecuencia respiratoria más que la meditación, en un ensayo de un mes (Balban y otros, 2023).",
-        listOf("Sentate o acostate cómodo.", "Inhalá por la nariz hasta llenar los pulmones.", "Sin soltar el aire, hacé una segunda inhalación corta.", "Exhalá lento por la boca, más largo que la inhalación.", "Repetí."),
+        listOf("Sentate o acostate cómodo.", "Inhalá por la nariz hasta llenar los pulmones.", "Sin soltar el aire, sumá una inhalación corta.", "Soltá el aire despacio por la boca, más largo que la inhalación.", "Repetí."),
         listOf(1, 3, 5), 3,
-        phases = listOf(Phase("Inhalá por la nariz", 2f, 1.0f, "Inhalá"), Phase("Un poco más", 1f, 1.12f, "Más"), Phase("Exhalá lento por la boca", 6f, 0.62f, "Exhalá lento"))
+        // La segunda inhalación corta no se nombra: el círculo crece un poco y alcanza.
+        phases = listOf(
+            Phase("Inhalá por la nariz", 2f, 1.0f, "Inhalá por la nariz"),
+            Phase("Inhalá por la nariz", 1f, 1.12f, null),
+            Phase("Soltá despacio por la boca", 6f, 0.62f, "Soltá despacio")
+        )
     ),
     Practice(
         "caja", "Respiración en caja", "2 a 5 min", "Fuerte",
@@ -184,43 +199,49 @@ val PRACTICES = listOf(
         "También mejoró el ánimo en el mismo ensayo, algo menos que el suspiro cíclico (Balban y otros, 2023).",
         listOf("Inhalá 4 segundos.", "Sostené 4.", "Exhalá 4.", "Sostené 4.", "Repetí."),
         listOf(2, 3, 5), 3,
-        phases = listOf(Phase("Inhalá", 4f, 1.1f), Phase("Sostené", 4f, 1.1f), Phase("Exhalá", 4f, 0.62f), Phase("Sostené", 4f, 0.62f))
+        phases = listOf(
+            Phase("Inhalá", 4f, 1.1f, "Inhalá"),
+            Phase("Sostené", 4f, 1.1f, "Sostené"),
+            Phase("Soltá", 4f, 0.62f, "Soltá"),
+            Phase("Sostené", 4f, 0.62f, "Sostené")
+        )
     ),
     Practice(
         "meditacion", "Meditación guiada", "3, 5 o 10 min", "Fuerte",
         "Atención amable a la respiración y al cuerpo.",
         "En 45 ensayos, las apps de meditación bajaron un poco la ansiedad (g = 0,28) y la depresión (g = 0,24) (Linardon y otros, 2024). No reemplaza un tratamiento.",
-        listOf("Sentate cómodo.", "Seguí las frases en pantalla.", "Si te distraés, está bien: volvé a la respiración."),
+        listOf("Sentate cómodo.", "Escuchá la voz; si preferís, también podés leer las frases.", "Si te distraés, está bien: volvé a la respiración."),
         listOf(3, 5, 10), 5,
         steps = listOf(
-            "Sentate cómodo. Si querés, cerrá los ojos: la voz te va a guiar.",
-            "Notá el aire que entra y sale, sin cambiarlo.",
-            "Sentí dónde lo notás más: la nariz, el pecho o la panza.",
-            "Si aparece un pensamiento, está bien. Notalo y volvé a la respiración.",
-            "Ahora notá el cuerpo entero, de la cabeza a los pies.",
-            "Aflojá los hombros y la mandíbula.",
-            "Volvé a la respiración, una vez más.",
-            "Tratate con la misma amabilidad que a un amigo.",
-            "Poco a poco, volvé a notar los sonidos de alrededor."
+            "Acomodate en una posición cómoda. Si querés, cerrá los ojos.",
+            "Dejá que la respiración siga su ritmo natural. No hace falta cambiar nada.",
+            "Notá dónde sentís el aire: en la nariz, en el pecho o en la panza.",
+            "Si aparece un pensamiento, está bien. Dejalo pasar, como una nube, y volvé a la respiración.",
+            "Ahora llevá la atención al cuerpo entero, despacio, de la cabeza a los pies.",
+            "Aflojá la frente, la mandíbula y los hombros.",
+            "Con cada exhalación, dejá que el cuerpo se afloje.",
+            "Tratate con la misma amabilidad con la que tratarías a alguien que querés.",
+            "Poco a poco, volvé a notar los sonidos de alrededor. Cuando quieras, abrí los ojos."
         )
     ),
     Practice(
         "relajacion", "Relajación muscular", "5 o 10 min", "Fuerte",
-        "Tensar y soltar cada grupo de músculos, de los pies a la cara.",
+        "Tensar suavemente y soltar cada grupo de músculos, de los pies a la cara.",
         "Las técnicas de relajación tuvieron un efecto mediano sobre la ansiedad (d = 0,51) en 27 estudios (Manzoni y otros, 2008). Ideal antes de dormir.",
-        listOf("Acostate o sentate cómodo.", "Tensá cada zona 5 segundos.", "Soltá y notá la diferencia."),
+        listOf("Acostate o sentate cómodo.", "Tensá cada zona con suavidad unos segundos, sin forzar.", "Soltá y notá la diferencia."),
         listOf(5, 10), 10,
+        // «…» marca una pausa de unos segundos: primero tensás, después la voz dice cuándo soltar.
         steps = listOf(
-            "Acostate o sentate cómodo. Respirá lento.",
-            "Pies: apretá los dedos 5 segundos… y soltá.",
-            "Pantorrillas: tensá… y soltá. Notá la diferencia.",
-            "Muslos: apretá… y soltá.",
-            "Panza: tensá… y soltá.",
-            "Manos: cerrá los puños… y soltá.",
-            "Brazos: tensá… y soltá.",
-            "Hombros: subilos hacia las orejas… y soltá.",
-            "Cara: apretá los ojos y la mandíbula… y soltá.",
-            "Respirá lento y sentí el cuerpo entero, flojo."
+            "Acostate o sentate cómodo. Respirá lento, sin apuro.",
+            "Llevá la atención a los pies. Apretá suavemente los dedos… y soltá. Notá cómo se aflojan.",
+            "Ahora las pantorrillas. Tensalas un poco… y soltá.",
+            "Los muslos. Apretalos con suavidad… y soltá.",
+            "La panza. Tensala un momento… y soltá, dejando salir el aire.",
+            "Las manos. Cerrá los puños… y abrilas despacio.",
+            "Los brazos. Tensalos… y dejalos caer, flojos.",
+            "Los hombros. Subilos hacia las orejas… y dejalos bajar.",
+            "La cara. Apretá suavemente los ojos y la mandíbula… y soltá.",
+            "Respirá lento y sentí el cuerpo entero, pesado y tranquilo."
         )
     )
 )

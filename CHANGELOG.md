@@ -1,3 +1,15 @@
+# Próxima versión (sin publicar)
+
+- Calma: se sacaron los sonidos sintéticos de prueba.
+- Calma: la escena de arriba ya no está animada (se trababa); cambia de color con cada sonido.
+- Prácticas guiadas más suaves:
+  - Voz más tranquila generada con Kokoro (de mujer o de hombre), o sin voz. Si falta, usa la del teléfono, más lenta y grave.
+  - Música de fondo opcional (tanpura, campanas, cuenco, lluvia, arroyo, olas o ruido suave) que baja sola cuando habla la voz.
+  - Respiraciones: la voz guía las primeras vueltas y después solo de vez en cuando. Ya no dice «un poco más».
+  - Relajación: primero tensás y unos segundos después la voz te dice que sueltes.
+  - Textos reescritos, más calmos; las frases cambian con un fundido lento.
+  - Entrada y salida suaves: la música entra y sale despacio.
+
 # Tranqui 0.4.0
 
 ## Calma

@@ -51,6 +51,11 @@ Se descargan y preparan al compilar en GitHub Actions (lista en `tools/bigsoundb
 
 Créditos sugeridos por el autor: "Additional sounds: Joseph SARDIN - BigSoundBank.com".
 
+## Voz de las prácticas guiadas
+
+Generada al compilar con Kokoro-82M (hexgrad, licencia Apache 2.0), voces «ef_dora» y «em_alex»
+(`tools/generar_voz.py`). Si no está, la app usa la voz del teléfono.
+
 ## Generados por Tranqui
 
 Ruido rosa y ruido marrón: generados con ffmpeg (anoisesrc). Sin derechos de terceros.

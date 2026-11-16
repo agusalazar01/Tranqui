@@ -1,3 +1,7 @@
+# Próxima versión (sin publicar)
+
+- Respiraciones guiadas con sonido de viento: después de las primeras vueltas con voz, el viento viene al inhalar, se aquieta hasta quedar quieto al sostener y sopla al soltar. Es una grabación real de viento (CC0). Se puede apagar.
+
 # Tranqui 0.5.0
 
 - Biblioteca de sonidos: 40 sonidos en 9 grupos (agua, lluvia y tormenta, bosque y campo, noche, fuego, hogar, viaje, cuencos y ruidos). En Calma quedan 8 destacados y el botón «Explorar la biblioteca».

@@ -7,6 +7,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.horizontalScroll
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.PlaybackParameters
 import androidx.media3.exoplayer.ExoPlayer
 import kotlinx.coroutines.withTimeoutOrNull
 import java.security.MessageDigest
@@ -232,6 +233,7 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
     var running by remember { mutableStateOf(false) }
     var done by remember { mutableStateOf(false) }
     var vibrate by remember { mutableStateOf(true) }
+    var viento by remember { mutableStateOf(Store.practiceWind) }
     val ctx = LocalContext.current
     val fondosDisponibles = remember { fondos(ctx) }
     val total = remember { voicePhrases().size }
@@ -251,7 +253,7 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
         BackBar(p.name) { nav.pop() }
         when {
             running -> {
-                PracticeRunner(p, minutes, vibrate, voz, fondo) {
+                PracticeRunner(p, minutes, vibrate, voz, fondo, viento) {
                     Store.addSession(Session(Store.today(), null, p.name, minutes))
                     running = false
                     done = true
@@ -309,6 +311,17 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
                 Small("La música baja sola cuando habla la voz.")
                 if (p.allPhases.isNotEmpty()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Body("Guiar con sonido de viento")
+                            Small(if (voz.isNotEmpty()) "Después de las primeras vueltas con voz: el viento viene al inhalar, se aquieta al sostener y sopla al soltar."
+                                  else "El viento viene al inhalar, se aquieta al sostener y sopla al soltar.")
+                        }
+                        Switch(
+                            checked = viento, onCheckedChange = { viento = it; Store.practiceWind = it },
+                            colors = SwitchDefaults.colors(checkedTrackColor = C.Bosque)
+                        )
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Body("Vibrar en cada cambio", Modifier.weight(1f))
                         Switch(
                             checked = vibrate, onCheckedChange = { vibrate = it },
@@ -323,7 +336,7 @@ fun PracticeScreen(id: String, nav: Nav, presetMinutes: Int? = null) {
 }
 
 @Composable
-private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: String, fondo: String, onDone: () -> Unit) {
+private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: String, fondo: String, wind: Boolean, onDone: () -> Unit) {
     val ctx = LocalContext.current
     val view = LocalView.current
     // La pantalla no se apaga durante la práctica: si se apagara, la guía se frenaría.
@@ -331,7 +344,7 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
         view.keepScreenOn = true
         onDispose { view.keepScreenOn = false }
     }
-    val audio = remember { PracticeAudio(ctx, voz, fondo) }
+    val audio = remember { PracticeAudio(ctx, voz, fondo, wind && p.allPhases.isNotEmpty()) }
     DisposableEffect(Unit) { onDispose { audio.release() } }
     val scale = remember { Animatable(0.8f) }
     var label by remember { mutableStateOf("Acomodate") }
@@ -365,13 +378,23 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
                         while (s > 0) { secs = s; delay(1000); s-- }
                         secs = 0
                     }
-                    // La voz acompaña las primeras vueltas y después solo de vez en cuando:
-                    // el círculo y la vibración alcanzan para seguir el ritmo.
+                    // La voz acompaña las primeras vueltas. Con el viento activado, después
+                    // guía solo el viento; sin viento, la voz vuelve de vez en cuando.
                     val say = ph.say
-                    if (say != null && (cycle < 3 || cycle % 5 == 0)) audio.say(say)
+                    val conVoz = voz.isNotEmpty() && cycle < 3
+                    val hablar = say != null && (cycle < 3 || (!wind && cycle % 5 == 0))
+                    if (hablar) audio.say(say!!)
                     if (vibrate && say != null) buzz(ctx, 25)
+                    val tipo = when {
+                        ph.scale > scale.value + 0.02f -> 1
+                        ph.scale < scale.value - 0.02f -> -1
+                        else -> 0
+                    }
+                    // Mientras habla la voz, el viento se aquieta para no taparla.
+                    val soplo = launch { if (wind && !conVoz) audio.breathe(tipo, ph.seconds) else audio.breathe(0, 1.5f) }
                     scale.animateTo(ph.scale, tween((ph.seconds * 1000).toInt(), easing = FastOutSlowInEasing))
                     cuenta.cancel()
+                    soplo.cancel()
                 }
                 cycle++
                 if (cycle == 3) audio.say(VOZ_SEGUI)
@@ -436,7 +459,7 @@ private fun PracticeRunner(p: Practice, minutes: Int, vibrate: Boolean, voz: Str
  * - Música: una grabación del catálogo en bucle, que baja sola mientras habla la voz.
  * Todo se usa desde el hilo principal (ExoPlayer lo necesita así).
  */
-class PracticeAudio(ctx: Context, private val voz: String, private val fondo: String) {
+class PracticeAudio(ctx: Context, private val voz: String, private val fondo: String, wind: Boolean = false) {
     private val app = ctx.applicationContext
     private fun assetSet(path: String): Set<String> = runCatching { app.assets.list(path)?.toSet() }.getOrNull() ?: emptySet()
     private val myDir = java.io.File(app.filesDir, "mivoz")
@@ -451,6 +474,49 @@ class PracticeAudio(ctx: Context, private val voz: String, private val fondo: St
     }
     private val voice: ExoPlayer? = if (voz.isEmpty()) null else ExoPlayer.Builder(app).build()
     private var fading = false
+
+    /**
+     * Viento que guía la respiración: una grabación real de viento (CC0) en bucle, cuyo volumen
+     * y tono siguen cada fase. Al inhalar el viento viene y crece; al sostener se calma hasta
+     * quedar quieto; al soltar sopla, más grave, y se va apagando.
+     */
+    private val aire: ExoPlayer? = if (!wind) null else ExoPlayer.Builder(app).build().apply {
+        setMediaItem(MediaItem.fromUri("asset:///soundscape/sounds/viento.ogg"))
+        repeatMode = Player.REPEAT_MODE_ONE
+        volume = 0f
+        prepare()
+        play()
+    }
+
+    /** 1 = inhalar, 0 = sostener, -1 = soltar. Se cancela al terminar la fase. */
+    suspend fun breathe(kind: Int, seconds: Float) {
+        val a = aire ?: return
+        if (fading) return
+        a.playbackParameters = PlaybackParameters(1f, if (kind > 0) 1.06f else if (kind < 0) 0.86f else 1f)
+        val start = a.volume
+        val total = (seconds * 1000).toLong().coerceAtLeast(300)
+        val t0 = System.currentTimeMillis()
+        while (true) {
+            val f = ((System.currentTimeMillis() - t0).toFloat() / total).coerceIn(0f, 1f)
+            a.volume = when {
+                // Viene: entra suave y crece hacia el final.
+                kind > 0 -> maxOf(start, 0.04f).let { s0 -> s0 + (0.54f - s0).coerceAtLeast(0f) * (1f - (1f - f) * (1f - f)) }
+                // Sopla: arranca fuerte y se va apagando.
+                kind < 0 -> {
+                    val pico = maxOf(start, 0.5f)
+                    if (f < 0.08f) start + (pico - start) * (f / 0.08f)
+                    else pico * (1f - (f - 0.08f) / 0.92f).let { it * it }
+                }
+                // Se calma hasta la quietud en la primera mitad de la pausa.
+                else -> start * (1f - (f / 0.5f).coerceAtMost(1f)).let { it * it }
+            }
+            if (f >= 1f) break
+            delay(40)
+        }
+    }
+
+    /** Silencia el viento de golpe pero sin chasquido (al dejar de guiar con viento). */
+    fun windOff() { aire?.volume = 0f }
 
     init {
         // Si había un sonido de Calma sonando, se pausa para no mezclar.
@@ -508,6 +574,7 @@ class PracticeAudio(ctx: Context, private val voz: String, private val fondo: St
     /** Baja el fondo despacio hasta silenciarlo. */
     suspend fun fadeOut() {
         fading = true
+        aire?.let { a -> while (a.volume > 0.01f) { a.volume *= 0.85f; delay(60) }; a.pause() }
         val m = music ?: return
         withTimeoutOrNull(7000) { while (m.volume > 0.01f) { m.volume *= 0.9f; delay(100) } }
         m.pause()
@@ -516,6 +583,7 @@ class PracticeAudio(ctx: Context, private val voz: String, private val fondo: St
     fun release() {
         music?.release()
         voice?.release()
+        aire?.release()
     }
 }
 

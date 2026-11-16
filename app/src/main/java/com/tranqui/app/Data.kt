@@ -178,6 +178,10 @@ object Store {
         }
 
     /** Música de fondo de las prácticas: id de una grabación del catálogo, o "" sin música. */
+    var practiceWind: Boolean
+        get() = p.getBoolean("practice_wind", true)
+        set(v) { p.edit().putBoolean("practice_wind", v).apply() }
+
     var practiceMusic: String
         get() = p.getString("practice_music", "tanpura") ?: "tanpura"
         set(v) {

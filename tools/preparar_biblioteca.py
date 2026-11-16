@@ -110,7 +110,7 @@ def main():
     cat = json.load(open(CATALOGO, encoding="utf-8"))
     ok, fallas = 0, []
     for s in cat["sounds"]:
-        if s["source"]["type"] == "local":
+        if s["source"]["type"] in ("local", "online"):  # los «en línea» se escuchan por internet
             continue
         destino = os.path.join(SALIDA, s["id"] + ".ogg")
         if os.path.exists(destino):
